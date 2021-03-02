@@ -1,7 +1,7 @@
 from pygame.locals import *
 import pygame
 import sys
-
+import movemgr
 
 SCREEN_X = 10
 SCREEN_Y = 8
@@ -23,16 +23,19 @@ g_img_black = None
 g_img_floor = None
 g_img_wall = None
 g_img_map = None
+g_move = None
 
 #-------------------------------------------------------------------------------
 # 画像表示（ブロック指定）
 #-------------------------------------------------------------------------------
 def put_img( img, x, y ):
     global g_screen
+    global g_move
 
     pos_x = ( x * CELL_W ) - ( CELL_W/2 )
     pos_y = ( y * CELL_H ) - ( CELL_H/2 )
-    g_screen.blit( img, ( pos_x, pos_y ))
+    move_x, move_y = g_move.get_move_offset()
+    g_screen.blit( img, ( pos_x + move_x, pos_y + move_y ))
     return
 #-------------------------------------------------------------------------------
 # プレイヤー表示（ブロック指定）
@@ -63,16 +66,16 @@ def put_floor_and_wall( center_x, center_y ):
             x = ofs_x + center_x
             y = ofs_y + center_y
 
-            if x < rect.left or y < rect.top or x >= rect.right or y >= rect.bottom:
-                img = g_img_black
-            else:
-                dotcol = g_img_map.get_at(( x, y ))
-                if dotcol == DOTCOL_START_POS:
-                    img = g_img_floor
-                elif dotcol == DOTCOL_FLOOR:
-                    img = g_img_floor
-                elif dotcol == DOTCOL_WALL:
-                    img = g_img_wall
+            img = g_img_black
+            if x >= rect.left and x < rect.right:
+                if y >= rect.top and y < rect.bottom:
+                    dotcol = g_img_map.get_at(( x, y ))
+                    if dotcol == DOTCOL_START_POS:
+                        img = g_img_floor
+                    elif dotcol == DOTCOL_FLOOR:
+                        img = g_img_floor
+                    elif dotcol == DOTCOL_WALL:
+                        img = g_img_wall
             put_img( img, ofs_x + sx, ofs_y + sy )
 
     return
@@ -100,6 +103,11 @@ def main():
     global g_img_black
     global g_img_floor
     global g_img_wall
+    global g_move
+
+    g_move = movemgr.MoveMgr()
+    g_move.set_destination( 10 )
+    g_move.set_block_size( CELL_H, CELL_W )
 
     # Pygameを初期化
     pygame.init()
@@ -118,7 +126,7 @@ def main():
         print("")
         return
 
-    #床
+    #イメージの読み込み
     g_img_black = pygame.image.load("black_64.bmp")
     g_img_floor = pygame.image.load("floor.bmp")
     g_img_wall = pygame.image.load("wall.bmp")
@@ -126,9 +134,8 @@ def main():
     colorkey = img_human.get_at((0,0))
     img_human.set_colorkey(colorkey, RLEACCEL)
 
-    running = True
     #メインループ
-    while running:
+    while True:
         g_screen.fill((0,128,128))  #画面を塗りつぶす
         #床と壁の表示
         put_floor_and_wall( cur_x,cur_y )
@@ -136,23 +143,38 @@ def main():
         put_player( img_human, SCREEN_X/2, SCREEN_Y/2 )
 
         pygame.display.update() #描画処理を実行
-        for event in pygame.event.get():
-            if event.type == QUIT:  # 終了イベント
-                running = False
-                pygame.quit()  #pygameのウィンドウを閉じる
-                sys.exit() #システム終了
-            if event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    pygame.quit()
+
+        # 移動オフセット進捗
+        if g_move.get_direction() != ( 0, 0 ):
+            pygame.time.wait( 16 );
+            g_move.make_progress()
+        else:
+            for event in pygame.event.get():
+
+                # 終了イベント
+                if event.type == QUIT:  
+                    #pygameのウィンドウを閉じる
+                    pygame.quit() 
+                    #システム終了
                     sys.exit()
-                elif event.key == K_LEFT:
-                    cur_x -= 1
-                elif event.key == K_RIGHT:
-                    cur_x += 1
-                elif event.key == K_UP:
-                    cur_y -= 1
-                elif event.key == K_DOWN:
-                    cur_y += 1
+
+                # キ－入力イベント
+                elif event.type == KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        pygame.quit()
+                        sys.exit()
+                    elif event.key == K_UP:
+                        cur_y -= 1
+                        g_move.set_direction( "up" )
+                    elif event.key == K_DOWN:
+                        cur_y += 1
+                        g_move.set_direction( "down" )
+                    elif event.key == K_LEFT:
+                        cur_x -= 1
+                        g_move.set_direction( "left" )
+                    elif event.key == K_RIGHT:
+                        cur_x += 1
+                        g_move.set_direction( "right" )
 
 if __name__=="__main__":
     main()
