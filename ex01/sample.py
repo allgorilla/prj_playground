@@ -141,6 +141,18 @@ def main():
                 running = False
                 pygame.quit()  #pygameのウィンドウを閉じる
                 sys.exit() #システム終了
-                
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+                elif event.key == K_LEFT:
+                    cur_x -= 1
+                elif event.key == K_RIGHT:
+                    cur_x += 1
+                elif event.key == K_UP:
+                    cur_y -= 1
+                elif event.key == K_DOWN:
+                    cur_y += 1
+
 if __name__=="__main__":
     main()
