@@ -58,6 +58,10 @@ def put_player( screen, img, x, y ):
 
 #-------------------------------------------------------------------------------
 # 床と壁のループ表示
+# param(in) screenオブジェクト
+# param(in) 移動中の方向
+# param(in) プレイヤーのマップ上の現在地(X方向)
+# param(in) プレイヤーのマップ上の現在地(Y方向)
 #-------------------------------------------------------------------------------
 def put_floor_and_wall( screen, move, cx, cy ):
     global g_img_map
@@ -65,12 +69,12 @@ def put_floor_and_wall( screen, move, cx, cy ):
     global g_img_wall
 
     rect = g_img_map.get_rect()
-    bx = int( SCREEN_X / 2 )
-    by = int( SCREEN_Y / 2 )
-    sx = bx
-    sy = by
-    ex = bx + 1
-    ey = by + 1
+    bx = int( SCREEN_X / 2 ) # マップ→ウインドウの表示範囲の補正値(X方向)
+    by = int( SCREEN_Y / 2 ) # マップ→ウインドウの表示範囲の補正値(Y方向)
+    sx = bx                  # マップの表示範囲の開始ブロック(X方向)
+    sy = by                  # マップの表示範囲の開始ブロック(Y方向)
+    ex = bx + 1              # マップの表示範囲の終端ブロック(X方向)
+    ey = by + 1              # マップの表示範囲の終端ブロック(Y方向)
 
     dir = move.get_direction()
     if dir[ 0 ] == 1:
@@ -86,13 +90,13 @@ def put_floor_and_wall( screen, move, cx, cy ):
     for oy in range( -sy, ey ):
         for ox in range( -sx, ex ):
 
-            x = ox + cx
-            y = oy + cy
+            mx = ox + cx # マップから読みだす対象のX座標
+            my = oy + cy # マップから読みだす対象のY座標
 
             img = g_img_black
-            if x >= rect.left and x < rect.right:
-                if y >= rect.top and y < rect.bottom:
-                    dotcol = g_img_map.get_at(( x, y ))
+            if mx >= rect.left and mx < rect.right:
+                if my >= rect.top and my < rect.bottom:
+                    dotcol = g_img_map.get_at(( mx, my ))
                     if dotcol == DOTCOL_START_POS:
                         img = g_img_floor
                     elif dotcol == DOTCOL_FLOOR:
