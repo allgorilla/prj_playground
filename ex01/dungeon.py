@@ -58,33 +58,52 @@ def put_player( screen, img, x, y ):
 
 #-------------------------------------------------------------------------------
 # 床と壁のループ表示
+# param(in) screenオブジェクト
+# param(in) 移動中の方向
+# param(in) プレイヤーのマップ上の現在地(X方向)
+# param(in) プレイヤーのマップ上の現在地(Y方向)
 #-------------------------------------------------------------------------------
-def put_floor_and_wall( screen, move, center_x, center_y ):
+def put_floor_and_wall( screen, move, cx, cy ):
     global g_img_map
     global g_img_floor
     global g_img_wall
 
     rect = g_img_map.get_rect()
-    sx = int( SCREEN_X / 2 )
-    sy = int( SCREEN_Y / 2 )
+    bx = int( SCREEN_X / 2 ) # マップ→ウインドウの表示範囲の補正値(X方向)
+    by = int( SCREEN_Y / 2 ) # マップ→ウインドウの表示範囲の補正値(Y方向)
+    sx = bx                  # マップの表示範囲の開始ブロック(X方向)
+    sy = by                  # マップの表示範囲の開始ブロック(Y方向)
+    ex = bx + 1              # マップの表示範囲の終端ブロック(X方向)
+    ey = by + 1              # マップの表示範囲の終端ブロック(Y方向)
 
-    for ofs_y in range( -sy, sy+1 ):
-        for ofs_x in range( -sx, sx+1 ):
+    dir = move.get_direction()
+    if dir[ 0 ] == 1:
+        sx += 1
+    elif dir[ 0 ] == -1:
+        ex += 1
 
-            x = ofs_x + center_x
-            y = ofs_y + center_y
+    if dir[ 1 ] == 1:
+        sy += 1
+    elif dir[ 1 ] == -1:
+        ey += 1
+
+    for oy in range( -sy, ey ):
+        for ox in range( -sx, ex ):
+
+            mx = ox + cx # マップから読みだす対象のX座標
+            my = oy + cy # マップから読みだす対象のY座標
 
             img = g_img_black
-            if x >= rect.left and x < rect.right:
-                if y >= rect.top and y < rect.bottom:
-                    dotcol = g_img_map.get_at(( x, y ))
+            if mx >= rect.left and mx < rect.right:
+                if my >= rect.top and my < rect.bottom:
+                    dotcol = g_img_map.get_at(( mx, my ))
                     if dotcol == DOTCOL_START_POS:
                         img = g_img_floor
                     elif dotcol == DOTCOL_FLOOR:
                         img = g_img_floor
                     elif dotcol == DOTCOL_WALL:
                         img = g_img_wall
-            put_block( screen, move, img, ofs_x + sx, ofs_y + sy )
+            put_block( screen, move, img, ox + bx, oy + by )
 
     return
 
@@ -146,7 +165,7 @@ class SceneDungeon:
         global g_img_human
 
         # 画面を塗りつぶす
-        self.__scr.fill(( 128, 128, 128 ))
+        self.__scr.fill(( 0, 0, 255 ))
 
         # 床と壁の表示
         put_floor_and_wall( self.__scr, self.__mv, self.__px,self.__py )
