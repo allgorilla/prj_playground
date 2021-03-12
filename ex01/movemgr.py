@@ -44,7 +44,7 @@ class MoveMgr:
     #-------------------------------------------------------------------------------
     def make_progress(self):
         self.progress += 1
-        if self.progress > self.destination:
+        if self.progress >= self.destination:
             self.direction = ( 0, 0 )
             self.progress  = 0
         return
