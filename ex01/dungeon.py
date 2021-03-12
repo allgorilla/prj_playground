@@ -182,10 +182,15 @@ class SceneDungeon:
     # キー入力
     #-------------------------------------------------------------------------------
     def input( self ):
+
+        # システムとの同期
+        self.__pygame.event.pump()
+
         # 移動オフセット進捗
         if self.__mv.get_direction() != ( 0, 0 ):
             self.__pygame.time.wait( 16 );
             self.__mv.make_progress()
+            self.__pygame.event.clear( [ KEYDOWN, KEYUP ] )
         else:
             for event in self.__pygame.event.get():
 
@@ -198,19 +203,21 @@ class SceneDungeon:
 
                 # キ－入力イベント
                 elif event.type == KEYDOWN:
+                    string = "none"
                     if event.key == K_ESCAPE:
                         self.__pygame.quit()
                         sys.exit()
                     elif event.key == K_UP:
                         self.__py -= 1
-                        self.__mv.set_direction( "up" )
+                        string = "up"
                     elif event.key == K_DOWN:
                         self.__py += 1
-                        self.__mv.set_direction( "down" )
+                        string = "down"
                     elif event.key == K_LEFT:
                         self.__px -= 1
-                        self.__mv.set_direction( "left" )
+                        string = "left"
                     elif event.key == K_RIGHT:
                         self.__px += 1
-                        self.__mv.set_direction( "right" )
+                        string = "right"
+                    self.__mv.set_direction( string )
         return
