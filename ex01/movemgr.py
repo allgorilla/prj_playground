@@ -27,17 +27,8 @@ class MoveMgr:
     #-------------------------------------------------------------------------------
     # 方向を設定
     #-------------------------------------------------------------------------------
-    def set_direction( self, string ):
-        if string == "up":
-            self.direction = ( 0, -1 )
-        elif string == "down":
-            self.direction = ( 0, +1 )
-        elif string == "left":
-            self.direction = ( -1, 0 )
-        elif string == "right":
-            self.direction = ( +1, 0 )
-        else:
-            self.direction = ( 0, 0 )
+    def set_direction( self, x, y ):
+        self.direction = ( x, y )
         return
     #-------------------------------------------------------------------------------
     # 進捗値を更新
