@@ -3,6 +3,7 @@ from pygame.locals import *
 import pygame
 import sys
 import movemgr
+import keyevt
 
 SCREEN_X = 10
 SCREEN_Y = 8
@@ -120,6 +121,7 @@ class SceneDungeon:
     __mv     = None
     __px     = None
     __py     = None
+    __key    = None
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -155,8 +157,11 @@ class SceneDungeon:
         g_img_human.set_colorkey(colorkey, RLEACCEL)
 
         self.__mv = movemgr.MoveMgr()
-        self.__mv.set_destination( 10 )
+        self.__mv.set_destination( 16 )
         self.__mv.set_block_size( CELL_H, CELL_W )
+
+        self.__key = keyevt.KeyEvent()
+
         return
     #-------------------------------------------------------------------------------
     # 描画
@@ -190,34 +195,25 @@ class SceneDungeon:
         if self.__mv.get_direction() != ( 0, 0 ):
             self.__pygame.time.wait( 16 );
             self.__mv.make_progress()
-            self.__pygame.event.clear( [ KEYDOWN, KEYUP ] )
         else:
             for event in self.__pygame.event.get():
 
                 # 終了イベント
-                if event.type == QUIT:  
-                    #pygameのウィンドウを閉じる
+                if event.type == QUIT:
                     self.__pygame.quit() 
-                    #システム終了
                     sys.exit()
 
                 # キ－入力イベント
-                elif event.type == KEYDOWN:
-                    string = "none"
+                if event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
                         self.__pygame.quit()
                         sys.exit()
-                    elif event.key == K_UP:
-                        self.__py -= 1
-                        string = "up"
-                    elif event.key == K_DOWN:
-                        self.__py += 1
-                        string = "down"
-                    elif event.key == K_LEFT:
-                        self.__px -= 1
-                        string = "left"
-                    elif event.key == K_RIGHT:
-                        self.__px += 1
-                        string = "right"
-                    self.__mv.set_direction( string )
+
+                self.__key.add_event( event )
+
+            x, y = self.__key.get_direction()
+            self.__px += x 
+            self.__py += y
+            self.__mv.set_direction( x, y )
+
         return
