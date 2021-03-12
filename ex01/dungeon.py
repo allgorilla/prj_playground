@@ -190,8 +190,7 @@ class SceneDungeon:
         if self.__mv.get_direction() != ( 0, 0 ):
             self.__pygame.time.wait( 16 );
             self.__mv.make_progress()
-            if self.__mv.get_direction() == ( 0, 0 ):
-                self.__pygame.event.clear( [ KEYDOWN, KEYUP ] )
+            self.__pygame.event.clear( [ KEYDOWN, KEYUP ] )
         else:
             for event in self.__pygame.event.get():
 
