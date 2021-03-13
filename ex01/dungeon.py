@@ -38,6 +38,18 @@ def get_start_pos(img):
     return False,0,0
 
 #-------------------------------------------------------------------------------
+# マップイメージの範囲チェック
+#-------------------------------------------------------------------------------
+def is_out_of_map_image( x, y ):
+
+    rect = g_img_map.get_rect()
+    if rect.top <= x and x < rect.bottom:
+        if rect.left <= y and y < rect.right:
+            return False
+
+    return True
+
+#-------------------------------------------------------------------------------
 # 画像表示（ブロック指定）
 #-------------------------------------------------------------------------------
 def put_block( screen, move, img, x, y ):
@@ -157,7 +169,7 @@ class SceneDungeon:
         g_img_human.set_colorkey(colorkey, RLEACCEL)
 
         self.__mv = movemgr.MoveMgr()
-        self.__mv.set_destination( 16 )
+        self.__mv.set_destination( 12 )
         self.__mv.set_block_size( CELL_H, CELL_W )
 
         self.__key = keyevt.KeyEvent()
@@ -212,8 +224,15 @@ class SceneDungeon:
                 self.__key.add_event( event )
 
             x, y = self.__key.get_direction()
-            self.__px += x 
-            self.__py += y
-            self.__mv.set_direction( x, y )
+
+            # マップイメージの範囲外に出る場合侵入できない
+            if True == is_out_of_map_image( self.__px + x, self.__py + y):
+                pass
+
+            # ブロックが壁の場合侵入できない
+            elif DOTCOL_WALL != g_img_map.get_at(( self.__px + x, self.__py + y )):
+                self.__px += x 
+                self.__py += y
+                self.__mv.set_direction( x, y )
 
         return
