@@ -6,6 +6,7 @@ import time
 import threading
 
 import blockmap
+import player
 import movemgr
 import keyevt
 
@@ -14,11 +15,6 @@ SCREEN_Y = 8
 
 CELL_H = 64
 CELL_W = 64
-PLAYER_H = 80
-PLAYER_W = 80
-
-g_img_human_a = None
-g_img_human_b = None
 
 #-------------------------------------------------------------------------------
 # プレイヤー表示（ブロック指定）
@@ -39,11 +35,12 @@ class SceneDungeon:
     # メンバ（Private）
     #-------------------------------------------------------------------------------
     __pygame = None
-    __scr    = None
+    __screen = None
     __mv     = None
     __px     = None
     __py     = None
-    __map     = None
+    __player = None
+    __map    = None
     __key    = None
     __thread = None
     __cnt    = None
@@ -52,26 +49,17 @@ class SceneDungeon:
     # コンストラクタ
     #-------------------------------------------------------------------------------
     def __init__( self, pygame, screen ):
-        global g_img_human_a
-        global g_img_human_b
 
         self.__pygame = pygame
-        self.__scr    = screen
+        self.__screen = screen
 
-        # プレイヤー読み込み
-        g_img_human_a = self.__pygame.image.load("human_a.bmp").convert()
-        colorkey = g_img_human_a.get_at((0,0))
-        g_img_human_a.set_colorkey(colorkey, RLEACCEL)
-
-        g_img_human_b = self.__pygame.image.load("human_b.bmp").convert()
-        colorkey = g_img_human_b.get_at((0,0))
-        g_img_human_b.set_colorkey(colorkey, RLEACCEL)
+        # プレイヤー初期化
+        self.__player = player.Player( self.__pygame, self.__screen, 20, CELL_W, CELL_H )
 
         # マップ初期化
-        self.__map = blockmap.BlockMap( self.__pygame, self.__scr, "map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
+        self.__map = blockmap.BlockMap( self.__pygame, self.__screen, "map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
 
         find, self.__px, self.__py = self.__map.get_start_pos()
-
         if find == False:
             print("")
             print("【異常終了】マップにスタート地点が見つかりません")
@@ -115,6 +103,8 @@ class SceneDungeon:
     def __update( self ):
 
         while None != self.__thread:
+            # システムとの同期
+            self.__pygame.event.pump()
             self.__pygame.time.wait( 16 )
 
             # 移動オフセットの進捗更新
@@ -131,28 +121,21 @@ class SceneDungeon:
                     self.__mv.set_direction( x, y )
             
             # プレイヤーアニメーション
-            self.__cnt += 1
-            if 40 < self.__cnt:
-                self.__cnt = 0
+            self.__player.update()
 
     #-------------------------------------------------------------------------------
     # 描画
     #-------------------------------------------------------------------------------
     def draw( self ):
-        global g_img_human_a
-        global g_img_human_b
 
         # 画面を塗りつぶす
-        self.__scr.fill(( 0, 0, 255 ))
+        self.__screen.fill(( 0, 0, 255 ))
 
         # 床と壁の表示
         self.__map.draw( self.__mv, self.__px, self.__py )
 
         #プレイヤーの表示
-        if 20 < self.__cnt:
-            put_player( self.__scr, g_img_human_a, SCREEN_X / 2, SCREEN_Y / 2 )
-        else:
-            put_player( self.__scr, g_img_human_b, SCREEN_X / 2, SCREEN_Y / 2 )
+        self.__player.draw( self.__screen, SCREEN_X / 2, SCREEN_Y / 2 )
 
         # 描画処理を実行
         self.__pygame.display.update()
@@ -163,9 +146,6 @@ class SceneDungeon:
     # キー入力
     #-------------------------------------------------------------------------------
     def input( self ):
-
-        # システムとの同期
-        self.__pygame.event.pump()
 
         for event in self.__pygame.event.get():
 
