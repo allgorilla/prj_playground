@@ -2,6 +2,8 @@
 from pygame.locals import *
 import pygame
 import sys
+import time
+import threading
 import movemgr
 import keyevt
 
@@ -134,6 +136,7 @@ class SceneDungeon:
     __px     = None
     __py     = None
     __key    = None
+    __thread = None
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -176,6 +179,54 @@ class SceneDungeon:
 
         return
     #-------------------------------------------------------------------------------
+    # 周期処理開始
+    #-------------------------------------------------------------------------------
+    def start( self ):
+
+        if None != self.__thread:
+            return False
+
+        else:
+            self.__thread = threading.Thread( target = self.__update )
+            self.__thread.start()
+            return True
+
+    #-------------------------------------------------------------------------------
+    # 終了処理
+    #-------------------------------------------------------------------------------
+    def __finalize( self ):
+
+        self.__thread = None
+        self.__pygame.quit() 
+        sys.exit()
+
+    #-------------------------------------------------------------------------------
+    # 周期更新
+    #-------------------------------------------------------------------------------
+    def __update( self ):
+
+        while None != self.__thread:
+            self.__pygame.time.wait( 16 )
+
+            # 移動アニメーション
+            if self.__mv.get_direction() != ( 0, 0 ):
+                # 移動オフセット進捗
+                self.__mv.make_progress()
+
+            else:
+                x, y = self.__key.get_direction()
+
+                # マップイメージの範囲外に出る場合侵入不可
+                if True == is_out_of_map_image( self.__px + x, self.__py + y ):
+                    pass
+
+                # ブロックが床の場合のみ侵入可
+                elif DOTCOL_WALL != g_img_map.get_at(( self.__px + x, self.__py + y )):
+                    self.__px += x 
+                    self.__py += y
+                    self.__mv.set_direction( x, y )
+
+    #-------------------------------------------------------------------------------
     # 描画
     #-------------------------------------------------------------------------------
     def draw( self ):
@@ -203,36 +254,17 @@ class SceneDungeon:
         # システムとの同期
         self.__pygame.event.pump()
 
-        # 移動オフセット進捗
-        if self.__mv.get_direction() != ( 0, 0 ):
-            self.__pygame.time.wait( 16 );
-            self.__mv.make_progress()
-        else:
-            for event in self.__pygame.event.get():
+        for event in self.__pygame.event.get():
 
-                # 終了イベント
-                if event.type == QUIT:
-                    self.__pygame.quit() 
-                    sys.exit()
+            # 終了イベント
+            if event.type == QUIT:
+                self.__finalize()
 
-                # キ－入力イベント
-                if event.type == KEYDOWN:
-                    if event.key == K_ESCAPE:
-                        self.__pygame.quit()
-                        sys.exit()
+            # キ－入力イベント
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    self.__finalize()
 
-                self.__key.add_event( event )
-
-            x, y = self.__key.get_direction()
-
-            # マップイメージの範囲外に出る場合侵入できない
-            if True == is_out_of_map_image( self.__px + x, self.__py + y):
-                pass
-
-            # ブロックが壁の場合侵入できない
-            elif DOTCOL_WALL != g_img_map.get_at(( self.__px + x, self.__py + y )):
-                self.__px += x 
-                self.__py += y
-                self.__mv.set_direction( x, y )
+            self.__key.add_event( event )
 
         return
