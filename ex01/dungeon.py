@@ -17,7 +17,8 @@ CELL_W = 64
 PLAYER_H = 80
 PLAYER_W = 80
 
-g_img_human = None
+g_img_human_a = None
+g_img_human_b = None
 
 #-------------------------------------------------------------------------------
 # プレイヤー表示（ブロック指定）
@@ -45,20 +46,26 @@ class SceneDungeon:
     __map     = None
     __key    = None
     __thread = None
+    __cnt    = None
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
     #-------------------------------------------------------------------------------
     def __init__( self, pygame, screen ):
-        global g_img_human
+        global g_img_human_a
+        global g_img_human_b
 
         self.__pygame = pygame
         self.__scr    = screen
 
         # プレイヤー読み込み
-        g_img_human = self.__pygame.image.load("human_80.bmp").convert()
-        colorkey = g_img_human.get_at((0,0))
-        g_img_human.set_colorkey(colorkey, RLEACCEL)
+        g_img_human_a = self.__pygame.image.load("human_a.bmp").convert()
+        colorkey = g_img_human_a.get_at((0,0))
+        g_img_human_a.set_colorkey(colorkey, RLEACCEL)
+
+        g_img_human_b = self.__pygame.image.load("human_b.bmp").convert()
+        colorkey = g_img_human_b.get_at((0,0))
+        g_img_human_b.set_colorkey(colorkey, RLEACCEL)
 
         # マップ初期化
         self.__map = blockmap.BlockMap( self.__pygame, self.__scr, "map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
@@ -82,6 +89,8 @@ class SceneDungeon:
     # 周期処理開始
     #-------------------------------------------------------------------------------
     def start( self ):
+
+        self.__cnt = 0
 
         if None != self.__thread:
             return False
@@ -120,12 +129,18 @@ class SceneDungeon:
                     self.__px += x 
                     self.__py += y
                     self.__mv.set_direction( x, y )
+            
+            # プレイヤーアニメーション
+            self.__cnt += 1
+            if 40 < self.__cnt:
+                self.__cnt = 0
 
     #-------------------------------------------------------------------------------
     # 描画
     #-------------------------------------------------------------------------------
     def draw( self ):
-        global g_img_human
+        global g_img_human_a
+        global g_img_human_b
 
         # 画面を塗りつぶす
         self.__scr.fill(( 0, 0, 255 ))
@@ -134,7 +149,10 @@ class SceneDungeon:
         self.__map.draw( self.__mv, self.__px, self.__py )
 
         #プレイヤーの表示
-        put_player( self.__scr, g_img_human, SCREEN_X / 2, SCREEN_Y / 2 )
+        if 20 < self.__cnt:
+            put_player( self.__scr, g_img_human_a, SCREEN_X / 2, SCREEN_Y / 2 )
+        else:
+            put_player( self.__scr, g_img_human_b, SCREEN_X / 2, SCREEN_Y / 2 )
 
         # 描画処理を実行
         self.__pygame.display.update()
