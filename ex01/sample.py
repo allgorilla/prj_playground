@@ -26,6 +26,9 @@ def main():
     # シーンオブジェクトを作成
     g_scene = dungeon.SceneDungeon( pygame, g_screen )
 
+    # 周期処理の開始
+    g_scene.start()
+
     # メインループ
     while True:
 
