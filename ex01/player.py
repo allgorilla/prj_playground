@@ -17,6 +17,7 @@ class Player:
     __screen     = None
     __fcnt       = None
     __fcnt_max   = None
+    __img_list   = []
     __ptn_list   = []
     __image      = None
     __block_w    = None
@@ -37,22 +38,27 @@ class Player:
         self.__block_w  = block_w
         self.__block_h  = block_h
 
-        # プレイヤー読み込み "a"
-        g_img_human_a = self.__pygame.image.load("human_a.bmp").convert()
-        colorkey = g_img_human_a.get_at(( 0, 0 ))
-        g_img_human_a.set_colorkey(colorkey, RLEACCEL)
-
-        # プレイヤー読み込み "b"
-        g_img_human_b = self.__pygame.image.load("human_b.bmp").convert()
-        colorkey = g_img_human_b.get_at(( 0, 0 ))
-        g_img_human_b.set_colorkey(colorkey, RLEACCEL)
-
-        # パターンリストの作成
-        self.__ptn_list.append( g_img_human_a )
-        self.__ptn_list.append( g_img_human_b )
-        self.__image = self.__ptn_list.pop( 0 )
-
         return
+
+    #-------------------------------------------------------------------------------
+    # パターンを追加
+    #-------------------------------------------------------------------------------
+    def add_pattern( self, filename ):
+
+        # パターンをimageリストに追加
+        self.__img_list.append( self.__pygame.image.load( filename ).convert())
+        image = self.__img_list[ -1 ]
+        # カラーキーを設定
+        colorkey = image.get_at(( 0, 0 ))
+        image.set_colorkey( colorkey, RLEACCEL )
+
+        # 1枚目のパターンだったら
+        if self.__image == None:
+            # 最初に表示する画像なのでリストに追加せずに保持
+            self.__image = image
+        else:
+            # 2枚目以降に表示する画像なのでリストに追加する
+            self.__ptn_list.append( image )
 
     #-------------------------------------------------------------------------------
     # プレイヤーを描画

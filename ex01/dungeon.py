@@ -55,6 +55,8 @@ class SceneDungeon:
 
         # プレイヤー初期化
         self.__player = player.Player( self.__pygame, self.__screen, 20, CELL_W, CELL_H )
+        self.__player.add_pattern( "human_a.bmp" )
+        self.__player.add_pattern( "human_b.bmp" )
 
         # マップ初期化
         self.__map = blockmap.BlockMap( self.__pygame, self.__screen, "map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
