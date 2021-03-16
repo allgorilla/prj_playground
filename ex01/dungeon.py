@@ -55,11 +55,11 @@ class SceneDungeon:
 
         # プレイヤー初期化
         self.__chara = srf_chr.SrfCharacter( self.__pygame, self.__screen, 20, CELL_W, CELL_H )
-        self.__chara.add_pattern( "human_a.bmp" )
-        self.__chara.add_pattern( "human_b.bmp" )
+        self.__chara.add_pattern( "image/human_a.bmp" )
+        self.__chara.add_pattern( "image/human_b.bmp" )
 
         # マップ初期化
-        self.__map = srf_map.SrfMap( self.__pygame, self.__screen, "map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
+        self.__map = srf_map.SrfMap( self.__pygame, self.__screen, "image/map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
 
         find, self.__px, self.__py = self.__map.get_start_pos()
         if find == False:

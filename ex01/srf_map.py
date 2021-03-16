@@ -50,9 +50,9 @@ class SrfMap:
         g_img_map = self.__pygame.image.load( filename )
 
         # イメージの読み込み
-        g_img_black = self.__pygame.image.load( "black_64.bmp" )
-        g_img_floor = self.__pygame.image.load( "floor.bmp" )
-        g_img_wall  = self.__pygame.image.load( "wall.bmp" )
+        g_img_black = self.__pygame.image.load( "image/black_64.bmp" )
+        g_img_floor = self.__pygame.image.load( "image/floor.bmp" )
+        g_img_wall  = self.__pygame.image.load( "image/wall.bmp" )
 
         return
 
