@@ -123,7 +123,7 @@ class SceneDungeon:
                     self.__mv.set_direction( x, y )
             
             # プレイヤーアニメーション
-            self.__player.update()
+            self.__player.update( x )
 
     #-------------------------------------------------------------------------------
     # 描画
