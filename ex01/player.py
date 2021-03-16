@@ -5,9 +5,6 @@ import pygame
 PLAYER_H = 80
 PLAYER_W = 80
 
-g_img_human_a = None
-g_img_human_b = None
-
 #-------------------------------------------------------------------------------
 # 移動マネージャークラス
 #-------------------------------------------------------------------------------
@@ -27,9 +24,6 @@ class Player:
     # コンストラクタ
     #-------------------------------------------------------------------------------
     def __init__( self, pygame, screen, fcnt_max, block_w, block_h ):
-
-        global g_img_human_a
-        global g_img_human_b
 
         self.__pygame   = pygame
         self.__screen   = screen
@@ -74,10 +68,10 @@ class Player:
     #-------------------------------------------------------------------------------
     # プレイヤーを描画
     #-------------------------------------------------------------------------------
-    def draw( self, screen, x, y  ):
+    def draw( self, x, y  ):
 
         pos_x = ( x * self.__block_w ) - ( PLAYER_W / 2 )
         pos_y = ( y * self.__block_h ) - ( self.__block_h / 2 ) - ( PLAYER_H - self.__block_h )
-        screen.blit( self.__image, ( pos_x, pos_y ))
+        self.__screen.blit( self.__image, ( pos_x, pos_y ))
 
         return

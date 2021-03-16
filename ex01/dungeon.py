@@ -137,7 +137,7 @@ class SceneDungeon:
         self.__map.draw( self.__mv, self.__px, self.__py )
 
         #プレイヤーの表示
-        self.__player.draw( self.__screen, SCREEN_X / 2, SCREEN_Y / 2 )
+        self.__player.draw( SCREEN_X / 2, SCREEN_Y / 2 )
 
         # 描画処理を実行
         self.__pygame.display.update()
