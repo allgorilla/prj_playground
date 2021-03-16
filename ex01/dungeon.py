@@ -5,10 +5,10 @@ import sys
 import time
 import threading
 
-import blockmap
-import player
-import movemgr
-import keyevt
+import srf_map
+import srf_chr
+import sts_move
+import sts_cursor
 
 SCREEN_X = 10
 SCREEN_Y = 8
@@ -39,9 +39,9 @@ class SceneDungeon:
     __mv     = None
     __px     = None
     __py     = None
-    __player = None
+    __chara  = None
     __map    = None
-    __key    = None
+    __cursor = None
     __thread = None
     __cnt    = None
 
@@ -54,12 +54,12 @@ class SceneDungeon:
         self.__screen = screen
 
         # プレイヤー初期化
-        self.__player = player.Player( self.__pygame, self.__screen, 20, CELL_W, CELL_H )
-        self.__player.add_pattern( "human_a.bmp" )
-        self.__player.add_pattern( "human_b.bmp" )
+        self.__chara = srf_chr.SrfCharacter( self.__pygame, self.__screen, 20, CELL_W, CELL_H )
+        self.__chara.add_pattern( "image/human_a.bmp" )
+        self.__chara.add_pattern( "image/human_b.bmp" )
 
         # マップ初期化
-        self.__map = blockmap.BlockMap( self.__pygame, self.__screen, "map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
+        self.__map = srf_map.SrfMap( self.__pygame, self.__screen, "image/map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
 
         find, self.__px, self.__py = self.__map.get_start_pos()
         if find == False:
@@ -68,11 +68,11 @@ class SceneDungeon:
             print("")
             return
 
-        self.__mv = movemgr.MoveMgr()
+        self.__mv = sts_move.StsMove()
         self.__mv.set_destination( 12 )
         self.__mv.set_block_size( CELL_H, CELL_W )
 
-        self.__key = keyevt.KeyEvent()
+        self.__cursor = sts_cursor.StsCursor()
 
         return
     #-------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ class SceneDungeon:
                 self.__mv.make_progress()
 
             else:
-                x, y = self.__key.get_direction()
+                x, y = self.__cursor.get_direction()
 
                 # ブロックの侵入可否チェック
                 if True == self.__map.can_walk( self.__px + x, self.__py + y ):
@@ -123,7 +123,7 @@ class SceneDungeon:
                     self.__mv.set_direction( x, y )
             
             # プレイヤーアニメーション
-            self.__player.update()
+            self.__chara.update( x )
 
     #-------------------------------------------------------------------------------
     # 描画
@@ -137,7 +137,7 @@ class SceneDungeon:
         self.__map.draw( self.__mv, self.__px, self.__py )
 
         #プレイヤーの表示
-        self.__player.draw( self.__screen, SCREEN_X / 2, SCREEN_Y / 2 )
+        self.__chara.draw( SCREEN_X / 2, SCREEN_Y / 2 )
 
         # 描画処理を実行
         self.__pygame.display.update()
@@ -160,6 +160,6 @@ class SceneDungeon:
                 if event.key == K_ESCAPE:
                     self.__finalize()
 
-            self.__key.add_event( event )
+            self.__cursor.add_event( event )
 
         return
