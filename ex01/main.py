@@ -1,7 +1,7 @@
 from pygame.locals import *
 import pygame
 import sys
-import dungeon
+import scn_dungeon
 
 SCREEN_H = ( 512 )
 SCREEN_W = ( 640 )
@@ -24,7 +24,7 @@ def main():
     pygame.display.set_caption("Pygame sample app")
 
     # シーンオブジェクトを作成
-    g_scene = dungeon.SceneDungeon( pygame, g_screen )
+    g_scene = scn_dungeon.SceneDungeon( pygame, g_screen )
 
     # 周期処理の開始
     g_scene.start()
