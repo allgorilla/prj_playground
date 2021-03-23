@@ -5,6 +5,7 @@ import sys
 import time
 import threading
 
+import scn_base
 import srf_map
 import srf_chr
 import sts_move
@@ -29,13 +30,14 @@ def put_player( screen, img, x, y ):
 #-------------------------------------------------------------------------------
 # シーンクラス
 #-------------------------------------------------------------------------------
-class SceneDungeon:
+class SceneDungeon( scn_base.SceneBase ):
 
     #-------------------------------------------------------------------------------
     # メンバ（Private）
     #-------------------------------------------------------------------------------
     __pygame = None
     __screen = None
+    __scene  = None
     __mv     = None
     __px     = None
     __py     = None
@@ -52,6 +54,7 @@ class SceneDungeon:
 
         self.__pygame = pygame
         self.__screen = screen
+        self.__scene  = scn_base.EnumScene.Dungeon
 
         # プレイヤー初期化
         self.__chara = srf_chr.SrfCharacter( self.__pygame, self.__screen, 20, CELL_W, CELL_H )
@@ -80,6 +83,7 @@ class SceneDungeon:
     #-------------------------------------------------------------------------------
     def start( self ):
 
+        self.__scene  = scn_base.EnumScene.Dungeon
         self.__cnt = 0
 
         if None != self.__thread:
@@ -159,7 +163,13 @@ class SceneDungeon:
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     self.__finalize()
+                elif event.key == K_RETURN:
+                    self.__scene = scn_base.EnumScene.Battle
 
             self.__cursor.add_event( event )
-
         return
+    #-------------------------------------------------------------------------------
+    # シーン取得
+    #-------------------------------------------------------------------------------
+    def get_scene( self ):
+        return self.__scene
