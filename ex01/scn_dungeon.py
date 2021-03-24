@@ -5,6 +5,7 @@ import sys
 import time
 import threading
 
+import scn_base
 import srf_map
 import srf_chr
 import sts_move
@@ -29,21 +30,21 @@ def put_player( screen, img, x, y ):
 #-------------------------------------------------------------------------------
 # シーンクラス
 #-------------------------------------------------------------------------------
-class SceneDungeon:
+class SceneDungeon( scn_base.SceneBase ):
 
     #-------------------------------------------------------------------------------
     # メンバ（Private）
     #-------------------------------------------------------------------------------
-    __pygame = None
-    __screen = None
-    __mv     = None
-    __px     = None
-    __py     = None
-    __chara  = None
-    __map    = None
-    __cursor = None
-    __thread = None
-    __cnt    = None
+    __pygame  = None
+    __screen  = None
+    __mv      = None
+    __px      = None
+    __py      = None
+    __chara   = None
+    __map     = None
+    __cursor  = None
+    __thread  = None
+    __cnt     = None
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -52,6 +53,7 @@ class SceneDungeon:
 
         self.__pygame = pygame
         self.__screen = screen
+        self.scene  = scn_base.EnumScene.Dungeon
 
         # プレイヤー初期化
         self.__chara = srf_chr.SrfCharacter( self.__pygame, self.__screen, 20, CELL_W, CELL_H )
@@ -78,8 +80,10 @@ class SceneDungeon:
     #-------------------------------------------------------------------------------
     # 周期処理開始
     #-------------------------------------------------------------------------------
-    def start( self ):
+    def begin( self ):
 
+        self.scene  = scn_base.EnumScene.Dungeon
+        self.changed = False
         self.__cnt = 0
 
         if None != self.__thread:
@@ -91,13 +95,12 @@ class SceneDungeon:
             return True
 
     #-------------------------------------------------------------------------------
-    # 終了処理
+    # シーン終了
     #-------------------------------------------------------------------------------
-    def __finalize( self ):
-
+    def end( self ):
         self.__thread = None
-        self.__pygame.quit() 
-        sys.exit()
+        self.__cursor.clear_event()
+        return
 
     #-------------------------------------------------------------------------------
     # 周期更新
@@ -110,12 +113,11 @@ class SceneDungeon:
             self.__pygame.time.wait( 16 )
 
             # 移動オフセットの進捗更新
+            x, y = self.__cursor.get_direction()
             if self.__mv.get_direction() != ( 0, 0 ):
                 self.__mv.make_progress()
 
             else:
-                x, y = self.__cursor.get_direction()
-
                 # ブロックの侵入可否チェック
                 if True == self.__map.can_walk( self.__px + x, self.__py + y ):
                     self.__px += x 
@@ -130,17 +132,11 @@ class SceneDungeon:
     #-------------------------------------------------------------------------------
     def draw( self ):
 
-        # 画面を塗りつぶす
-        self.__screen.fill(( 0, 0, 255 ))
-
         # 床と壁の表示
         self.__map.draw( self.__mv, self.__px, self.__py )
 
         #プレイヤーの表示
         self.__chara.draw( SCREEN_X / 2, SCREEN_Y / 2 )
-
-        # 描画処理を実行
-        self.__pygame.display.update()
 
         return
 
@@ -153,13 +149,14 @@ class SceneDungeon:
 
             # 終了イベント
             if event.type == QUIT:
-                self.__finalize()
+                self.change( scn_base.EnumScene.Quit )
 
             # キ－入力イベント
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    self.__finalize()
+                    self.change( scn_base.EnumScene.Quit )
+                elif event.key == K_RETURN:
+                    self.change( scn_base.EnumScene.Battle )
 
             self.__cursor.add_event( event )
-
         return
