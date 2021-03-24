@@ -35,17 +35,18 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     # メンバ（Private）
     #-------------------------------------------------------------------------------
-    __pygame = None
-    __screen = None
-    __scene  = None
-    __mv     = None
-    __px     = None
-    __py     = None
-    __chara  = None
-    __map    = None
-    __cursor = None
-    __thread = None
-    __cnt    = None
+    __pygame  = None
+    __screen  = None
+    __scene   = None
+    __changed = None
+    __mv      = None
+    __px      = None
+    __py      = None
+    __chara   = None
+    __map     = None
+    __cursor  = None
+    __thread  = None
+    __cnt     = None
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -81,9 +82,10 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     # 周期処理開始
     #-------------------------------------------------------------------------------
-    def start( self ):
+    def begin( self ):
 
         self.__scene  = scn_base.EnumScene.Dungeon
+        self.__changed = False
         self.__cnt = 0
 
         if None != self.__thread:
@@ -93,6 +95,13 @@ class SceneDungeon( scn_base.SceneBase ):
             self.__thread = threading.Thread( target = self.__update )
             self.__thread.start()
             return True
+
+    #-------------------------------------------------------------------------------
+    # シーン終了
+    #-------------------------------------------------------------------------------
+    def end( self ):
+        self.__thread = None
+        return
 
     #-------------------------------------------------------------------------------
     # 終了処理
@@ -164,12 +173,27 @@ class SceneDungeon( scn_base.SceneBase ):
                 if event.key == K_ESCAPE:
                     self.__finalize()
                 elif event.key == K_RETURN:
-                    self.__scene = scn_base.EnumScene.Battle
+                    self.__change( scn_base.EnumScene.Battle )
 
             self.__cursor.add_event( event )
         return
+
+    #-------------------------------------------------------------------------------
+    # シーン変更
+    #-------------------------------------------------------------------------------
+    def __change( self, scene ):
+        self.__scene  = scene
+        self.__changed = True
+        return
+
     #-------------------------------------------------------------------------------
     # シーン取得
     #-------------------------------------------------------------------------------
     def get_scene( self ):
         return self.__scene
+
+    #-------------------------------------------------------------------------------
+    # シーン変更チェック
+    #-------------------------------------------------------------------------------
+    def is_changed( self ):
+        return self.__changed
