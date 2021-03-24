@@ -17,8 +17,6 @@ class SceneBattle( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     __pygame  = None
     __screen  = None
-    __scene   = None
-    __changed = None
     __image   = None
 
     #-------------------------------------------------------------------------------
@@ -28,7 +26,7 @@ class SceneBattle( scn_base.SceneBase ):
 
         self.__pygame = pygame
         self.__screen = screen
-        self.__scene  = scn_base.EnumScene.Battle
+        self.scene  = scn_base.EnumScene.Battle
 
         # 画像ファイルを読み込み
         self.__image = self.__pygame.image.load( "image/battle.png" ).convert()
@@ -38,8 +36,8 @@ class SceneBattle( scn_base.SceneBase ):
     # シーン開始
     #-------------------------------------------------------------------------------
     def begin( self ):
-        self.__scene  = scn_base.EnumScene.Battle
-        self.__changed = False
+        self.scene  = scn_base.EnumScene.Battle
+        self.changed = False
 
         return
 
@@ -92,26 +90,6 @@ class SceneBattle( scn_base.SceneBase ):
                 if event.key == K_ESCAPE:
                     self.__finalize()
                 elif event.key == K_RETURN:
-                    self.__change( scn_base.EnumScene.Dungeon )
+                    self.change( scn_base.EnumScene.Dungeon )
 
         return
-
-    #-------------------------------------------------------------------------------
-    # シーン変更
-    #-------------------------------------------------------------------------------
-    def __change( self, scene ):
-        self.__scene  = scene
-        self.__changed = True
-        return
-
-    #-------------------------------------------------------------------------------
-    # シーン取得
-    #-------------------------------------------------------------------------------
-    def get_scene( self ):
-        return self.__scene
-
-    #-------------------------------------------------------------------------------
-    # シーン変更チェック
-    #-------------------------------------------------------------------------------
-    def is_changed( self ):
-        return self.__changed

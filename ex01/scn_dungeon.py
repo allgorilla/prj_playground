@@ -37,8 +37,6 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     __pygame  = None
     __screen  = None
-    __scene   = None
-    __changed = None
     __mv      = None
     __px      = None
     __py      = None
@@ -55,7 +53,7 @@ class SceneDungeon( scn_base.SceneBase ):
 
         self.__pygame = pygame
         self.__screen = screen
-        self.__scene  = scn_base.EnumScene.Dungeon
+        self.scene  = scn_base.EnumScene.Dungeon
 
         # プレイヤー初期化
         self.__chara = srf_chr.SrfCharacter( self.__pygame, self.__screen, 20, CELL_W, CELL_H )
@@ -84,8 +82,8 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     def begin( self ):
 
-        self.__scene  = scn_base.EnumScene.Dungeon
-        self.__changed = False
+        self.scene  = scn_base.EnumScene.Dungeon
+        self.changed = False
         self.__cnt = 0
 
         if None != self.__thread:
@@ -173,27 +171,7 @@ class SceneDungeon( scn_base.SceneBase ):
                 if event.key == K_ESCAPE:
                     self.__finalize()
                 elif event.key == K_RETURN:
-                    self.__change( scn_base.EnumScene.Battle )
+                    self.change( scn_base.EnumScene.Battle )
 
             self.__cursor.add_event( event )
         return
-
-    #-------------------------------------------------------------------------------
-    # シーン変更
-    #-------------------------------------------------------------------------------
-    def __change( self, scene ):
-        self.__scene  = scene
-        self.__changed = True
-        return
-
-    #-------------------------------------------------------------------------------
-    # シーン取得
-    #-------------------------------------------------------------------------------
-    def get_scene( self ):
-        return self.__scene
-
-    #-------------------------------------------------------------------------------
-    # シーン変更チェック
-    #-------------------------------------------------------------------------------
-    def is_changed( self ):
-        return self.__changed
