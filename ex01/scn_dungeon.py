@@ -103,15 +103,6 @@ class SceneDungeon( scn_base.SceneBase ):
         return
 
     #-------------------------------------------------------------------------------
-    # 終了処理
-    #-------------------------------------------------------------------------------
-    def __finalize( self ):
-
-        self.__thread = None
-        self.__pygame.quit() 
-        sys.exit()
-
-    #-------------------------------------------------------------------------------
     # 周期更新
     #-------------------------------------------------------------------------------
     def __update( self ):
@@ -141,17 +132,11 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     def draw( self ):
 
-        # 画面を塗りつぶす
-        self.__screen.fill(( 0, 0, 255 ))
-
         # 床と壁の表示
         self.__map.draw( self.__mv, self.__px, self.__py )
 
         #プレイヤーの表示
         self.__chara.draw( SCREEN_X / 2, SCREEN_Y / 2 )
-
-        # 描画処理を実行
-        self.__pygame.display.update()
 
         return
 
@@ -164,12 +149,12 @@ class SceneDungeon( scn_base.SceneBase ):
 
             # 終了イベント
             if event.type == QUIT:
-                self.__finalize()
+                self.change( scn_base.EnumScene.Quit )
 
             # キ－入力イベント
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    self.__finalize()
+                    self.change( scn_base.EnumScene.Quit )
                 elif event.key == K_RETURN:
                     self.change( scn_base.EnumScene.Battle )
 

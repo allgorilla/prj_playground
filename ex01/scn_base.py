@@ -12,6 +12,7 @@ from enum import IntEnum
 class EnumScene( IntEnum ):
     Dungeon = 0
     Battle  = 1
+    Quit    = 2
 
 #-------------------------------------------------------------------------------
 # シーンクラス

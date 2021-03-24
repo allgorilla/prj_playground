@@ -5,6 +5,7 @@ import sys
 import scn_base
 import scn_dungeon
 import scn_battle
+import scn_quit
 
 SCREEN_H = ( 512 )
 SCREEN_W = ( 640 )
@@ -28,6 +29,7 @@ def main():
     # シーンオブジェクトを作成
     scene_list.append( scn_dungeon.SceneDungeon( pygame, screen ) )
     scene_list.append( scn_battle.SceneBattle( pygame, screen ) )
+    scene_list.append( scn_quit.SceneQuit( pygame, screen ) )
     scene = scene_list[ 0 ]
     scene.begin()
 
@@ -41,7 +43,9 @@ def main():
             scene.begin()
 
         # 描画
+        screen.fill(( 0, 0, 255 ))
         scene.draw()
+        pygame.display.update()
 
         # 入力
         scene.input()
