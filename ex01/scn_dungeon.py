@@ -101,6 +101,7 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     def end( self ):
         self.__thread = None
+        self.__cursor.clear_event()
         return
 
     #-------------------------------------------------------------------------------
@@ -123,12 +124,11 @@ class SceneDungeon( scn_base.SceneBase ):
             self.__pygame.time.wait( 16 )
 
             # 移動オフセットの進捗更新
+            x, y = self.__cursor.get_direction()
             if self.__mv.get_direction() != ( 0, 0 ):
                 self.__mv.make_progress()
 
             else:
-                x, y = self.__cursor.get_direction()
-
                 # ブロックの侵入可否チェック
                 if True == self.__map.can_walk( self.__px + x, self.__py + y ):
                     self.__px += x 
