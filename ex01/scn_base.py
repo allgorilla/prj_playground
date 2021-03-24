@@ -10,8 +10,8 @@ from enum import IntEnum
 # シーン列挙型
 #-------------------------------------------------------------------------------
 class EnumScene( IntEnum ):
-    Battle  = 0
-    Dungeon = 1
+    Dungeon = 0
+    Battle  = 1
 
 #-------------------------------------------------------------------------------
 # シーンクラス
@@ -82,3 +82,4 @@ class SceneBase:
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     self.__finalize()
+
