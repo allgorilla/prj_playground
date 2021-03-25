@@ -8,6 +8,7 @@ import threading
 import scn_base
 import srf_map
 import srf_chr
+import srf_fade_btl
 import sts_move
 import sts_cursor
 
@@ -45,6 +46,7 @@ class SceneDungeon( scn_base.SceneBase ):
     __cursor  = None
     __thread  = None
     __cnt     = None
+    __fade    = None
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -75,6 +77,9 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__mv.set_block_size( CELL_H, CELL_W )
 
         self.__cursor = sts_cursor.StsCursor()
+
+
+        self.__fade = srf_fade_btl.SrfFadeBattle( self.__pygame, self.__screen, False )
 
         return
     #-------------------------------------------------------------------------------
@@ -127,6 +132,7 @@ class SceneDungeon( scn_base.SceneBase ):
             # プレイヤーアニメーション
             self.__chara.update( x )
 
+            self.__fade.make_progress()
     #-------------------------------------------------------------------------------
     # 描画
     #-------------------------------------------------------------------------------
@@ -138,6 +144,7 @@ class SceneDungeon( scn_base.SceneBase ):
         #プレイヤーの表示
         self.__chara.draw( SCREEN_X / 2, SCREEN_Y / 2 )
 
+        self.__fade.draw()
         return
 
     #-------------------------------------------------------------------------------
