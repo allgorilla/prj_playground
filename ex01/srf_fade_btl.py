@@ -1,16 +1,19 @@
 # coding: utf-8
 from pygame.locals import *
 import pygame
-from enum import Enum
+from enum import Enum, auto
 
 #-------------------------------------------------------------------------------
 # シーン列挙型
 #-------------------------------------------------------------------------------
 class EnumFadeStatus( Enum ):
-    FadeInRun     = 0
-    FadeInFinish  = 1
-    FadeOutRun    = 2
-    FadeOutFinish = 3
+
+    FILL_COMPLETLY = auto()
+    FILL_SPREAD    = auto()
+    FILL_SHRINK    = auto()
+    WIPE_COMPLETLY = auto()
+    WIPE_SPREAD    = auto()
+    WIPE_SHRINK    = auto()
 
 #-------------------------------------------------------------------------------
 # 移動マネージャークラス
@@ -21,19 +24,22 @@ class SrfFadeBattle:
     __screen     = None
     __screen_w   = None
     __screen_h   = None
+    __offset_x   = None
+    __offset_y   = None
     __image      = None
     __image_w    = None
     __image_h    = None
-    __status     = None
+    __state      = None
     __list       = None
     __pos_list   = []
     __dir_list   = []
     __dest       = None
+    __is_spread  = None
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
     #-------------------------------------------------------------------------------
-    def __init__( self, pygame, screen, initial ):
+    def __init__( self, pygame, screen, state ):
 
         self.__pygame   = pygame
         self.__screen   = screen
@@ -48,26 +54,81 @@ class SrfFadeBattle:
         screen_w = -( -w // block_w ) * 2
         screen_h = -( -h // block_h ) * 2
 
-        if True == initial:
-            status = EnumFadeStatus.FadeOutFinish
-        elif False == initial:
-            status = EnumFadeStatus.FadeInFinish
+        # エフェクト範囲を正方形にする
+        # アスペクト比の差は描画時に補正する
+        if screen_w < screen_h:
+            screen_w = screen_h
+            offset_x = h - w
+            offset_y = 0
+        else:
+            screen_h = screen_w
+            offset_y = w - h
+            offset_x = 0
 
-        self.__list = [[ initial for i in range( screen_w )] for j in range( screen_h )]
+        self.__state = state
         self.__screen_w = screen_w
         self.__screen_h = screen_h
         self.__block_w  = block_w
         self.__block_h  = block_h
-        self.__status   = status
-        self.__dest     = not initial
-        self.__pos_list.append(( 0,0 ))
-        self.__pos_list.append(( screen_w - 1,screen_h - 1 ))
-        self.__pos_list.append(( 0,screen_h - 1 ))
-        self.__pos_list.append(( screen_w - 1,0 ))
+        self.__offset_x = offset_x
+        self.__offset_y = offset_y
+
+        # データ生成
+        self.__setup()
+
+        return
+
+    #-------------------------------------------------------------------------------
+    # データ生成
+    #-------------------------------------------------------------------------------
+    def __setup( self ):
+
+        state = self.__state
+        if EnumFadeStatus.FILL_COMPLETLY == state:
+            self.__is_spread = True
+            self.__dest      = True
+            init             = self.__dest
+        elif EnumFadeStatus.FILL_SPREAD == state:
+            self.__is_spread = True
+            self.__dest      = True
+            init             = not self.__dest
+        elif EnumFadeStatus.FILL_SHRINK == state:
+            self.__is_spread = False
+            self.__dest      = False
+            init             = not self.__dest
+        elif EnumFadeStatus.WIPE_COMPLETLY == state:
+            self.__is_spread = False
+            self.__dest      = False
+            init             = self.__dest
+        elif EnumFadeStatus.WIPE_SPREAD == state:
+            self.__is_spread = True
+            self.__dest      = False
+            init             = not self.__dest
+        elif EnumFadeStatus.WIPE_SHRINK == state:
+            self.__is_spread = False
+            self.__dest      = True
+            init             = not self.__dest
+
+        # 開始位置リスト
+        if True == self.__is_spread:
+            self.__pos_list.append(( self.__screen_w // 2 - 1, self.__screen_h // 2 + 0 ))
+            self.__pos_list.append(( self.__screen_w // 2 + 0, self.__screen_h // 2 - 1 ))
+            self.__pos_list.append(( self.__screen_w // 2 + 0, self.__screen_h // 2 + 0 ))
+            self.__pos_list.append(( self.__screen_w // 2 - 1, self.__screen_h // 2 - 1 ))
+        else:
+            self.__pos_list.append(( 0,0 ))
+            self.__pos_list.append(( self.__screen_w - 1,self.__screen_h - 1 ))
+            self.__pos_list.append(( 0,self.__screen_h - 1 ))
+            self.__pos_list.append(( self.__screen_w - 1,0 ))
+
+        # 進行方向リスト
         self.__dir_list.append(( 0,1 ))
         self.__dir_list.append(( 0,-1 ))
         self.__dir_list.append(( 1,0 ))
         self.__dir_list.append(( -1,0 ))
+
+        # マップを初期化
+        self.__list = [[ init for i in range( self.__screen_w )] for j in range( self.__screen_h )]
 
         return
 
@@ -88,16 +149,41 @@ class SrfFadeBattle:
                 self.__dir_list.pop( index )
             else:
                 self.__dir_list[ index ] = dir
-                self.__pos_list[ index ] = ( pos[ 0 ]  +dir[ 0 ], pos[ 1 ] + dir[ 1 ] )
+                self.__pos_list[ index ] = ( pos[ 0 ] + dir[ 0 ], pos[ 1 ] + dir[ 1 ] )
 
     #-------------------------------------------------------------------------------
     # 侵入可能な方向があるか
     #
-    # 進行方向を変えながら侵入できるブロックを探す
+    # 進行方向を変えながら侵入できる方向を探す
     # 4方向（上下左右）をチェックして、
     # いずれも侵入不可であれば探索を終了
     #-------------------------------------------------------------------------------
     def __is_finished( self, pos, dir ):
+        if True == self.__is_spread:
+            ret, dir = self.__is_finished_spread( pos, dir )
+            return ret, dir
+        else:
+            ret, dir = self.__is_finished_shrink( pos, dir )
+            return ret, dir
+
+    #-------------------------------------------------------------------------------
+    # 拡散用
+    #-------------------------------------------------------------------------------
+    def __is_finished_spread( self, pos, cur ):
+
+        nxt = self.__change_dir( cur )
+        if True == self.__can_move( pos, nxt ):
+            return False, nxt
+        else:
+            if True == self.__can_move( pos, cur ):
+                return False, cur
+            else:
+                return True, nxt
+
+    #-------------------------------------------------------------------------------
+    # 収縮用
+    #-------------------------------------------------------------------------------
+    def __is_finished_shrink( self, pos, dir ):
         if True == self.__can_move( pos, dir ):
             return False, dir
         else:
@@ -170,7 +256,9 @@ class SrfFadeBattle:
         for y in range( self.__screen_h ):
             for x in range( self.__screen_w ):
                 if True == self.__list[ y ][ x ]:
-                    self.__screen.blit( self.__image, ( x * self.__block_w, y * self.__block_h ))
+                    pos_x = x * self.__block_w - self.__offset_x
+                    pos_y = y * self.__block_h - self.__offset_y
+                    self.__screen.blit( self.__image, ( pos_x, pos_y ))
 
 
 

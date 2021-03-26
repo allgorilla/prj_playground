@@ -72,14 +72,17 @@ class SceneDungeon( scn_base.SceneBase ):
             print("")
             return
 
+        # 状態管理 - 移動量
         self.__mv = sts_move.StsMove()
         self.__mv.set_destination( 12 )
         self.__mv.set_block_size( CELL_H, CELL_W )
 
+        # 状態管理 - カーソル
         self.__cursor = sts_cursor.StsCursor()
 
-
-        self.__fade = srf_fade_btl.SrfFadeBattle( self.__pygame, self.__screen, False )
+        # フェード効果
+        state = srf_fade_btl.EnumFadeStatus.WIPE_COMPLETLY
+        self.__fade = srf_fade_btl.SrfFadeBattle( self.__pygame, self.__screen, state )
 
         return
     #-------------------------------------------------------------------------------
@@ -132,6 +135,7 @@ class SceneDungeon( scn_base.SceneBase ):
             # プレイヤーアニメーション
             self.__chara.update( x )
 
+            # フェード効果
             self.__fade.make_progress()
     #-------------------------------------------------------------------------------
     # 描画
@@ -141,9 +145,10 @@ class SceneDungeon( scn_base.SceneBase ):
         # 床と壁の表示
         self.__map.draw( self.__mv, self.__px, self.__py )
 
-        #プレイヤーの表示
+        # プレイヤーの表示
         self.__chara.draw( SCREEN_X / 2, SCREEN_Y / 2 )
 
+        # フェード効果
         self.__fade.draw()
         return
 
