@@ -22,10 +22,9 @@ class SrfFadeBattle:
 
     __pygame     = None
     __screen     = None
-    __screen_w   = None
-    __screen_h   = None
-    __offset_x   = None
-    __offset_y   = None
+    __scr_wh     = None
+    __ofs_x      = None
+    __ofs_y      = None
     __image      = None
     __image_w    = None
     __image_h    = None
@@ -46,32 +45,30 @@ class SrfFadeBattle:
 
         # 画像ファイルを読み込み
         self.__image = self.__pygame.image.load( "image/black_64.bmp" ).convert()
-        block_w      = self.__image.get_width()
-        block_h      = self.__image.get_height()
+        blk_w        = self.__image.get_width()
+        blk_h        = self.__image.get_height()
 
         w = -( -self.__screen.get_width() // 2 )
         h = -( -self.__screen.get_height() // 2 )
-        screen_w = -( -w // block_w ) * 2
-        screen_h = -( -h // block_h ) * 2
+        scr_w = -( -w // blk_w ) * 2
+        scr_h = -( -h // blk_h ) * 2
 
         # エフェクト範囲を正方形にする
         # アスペクト比の差は描画時に補正する
-        if screen_w < screen_h:
-            screen_w = screen_h
-            offset_x = h - w
-            offset_y = 0
+        if scr_w < scr_h:
+            self.__scr_wh = scr_h
+            ofs_x = h - w
+            ofs_y = 0
         else:
-            screen_h = screen_w
-            offset_y = w - h
-            offset_x = 0
+            self.__scr_wh = scr_w
+            ofs_y = w - h
+            ofs_x = 0
 
         self.__state = state
-        self.__screen_w = screen_w
-        self.__screen_h = screen_h
-        self.__block_w  = block_w
-        self.__block_h  = block_h
-        self.__offset_x = offset_x
-        self.__offset_y = offset_y
+        self.__blk_w = blk_w
+        self.__blk_h = blk_h
+        self.__ofs_x = ofs_x
+        self.__ofs_y = ofs_y
 
         # データ生成
         self.__setup()
@@ -111,24 +108,26 @@ class SrfFadeBattle:
 
         # 開始位置リスト
         if True == self.__is_spread:
-            self.__pos_list.append(( self.__screen_w // 2 - 1, self.__screen_h // 2 + 0 ))
-            self.__pos_list.append(( self.__screen_w // 2 + 0, self.__screen_h // 2 - 1 ))
-            self.__pos_list.append(( self.__screen_w // 2 + 0, self.__screen_h // 2 + 0 ))
-            self.__pos_list.append(( self.__screen_w // 2 - 1, self.__screen_h // 2 - 1 ))
+            wh = ( self.__scr_wh // 2 )
+            self.__pos_list.append(( wh - 1, wh + 0 ))
+            self.__pos_list.append(( wh + 0, wh - 1 ))
+            self.__pos_list.append(( wh + 0, wh + 0 ))
+            self.__pos_list.append(( wh - 1, wh - 1 ))
         else:
-            self.__pos_list.append(( 0,0 ))
-            self.__pos_list.append(( self.__screen_w - 1,self.__screen_h - 1 ))
-            self.__pos_list.append(( 0,self.__screen_h - 1 ))
-            self.__pos_list.append(( self.__screen_w - 1,0 ))
+            wh = self.__scr_wh
+            self.__pos_list.append(( 0,      0      ))
+            self.__pos_list.append(( wh - 1, wh - 1 ))
+            self.__pos_list.append(( 0,      wh - 1 ))
+            self.__pos_list.append(( wh - 1, 0      ))
 
         # 進行方向リスト
-        self.__dir_list.append(( 0,1 ))
-        self.__dir_list.append(( 0,-1 ))
-        self.__dir_list.append(( 1,0 ))
-        self.__dir_list.append(( -1,0 ))
+        self.__dir_list.append((  0, 1 ))
+        self.__dir_list.append((  0,-1 ))
+        self.__dir_list.append((  1, 0 ))
+        self.__dir_list.append(( -1, 0 ))
 
         # マップを初期化
-        self.__list = [[ init for i in range( self.__screen_w )] for j in range( self.__screen_h )]
+        self.__list = [[ init for i in range( self.__scr_wh )] for j in range( self.__scr_wh )]
 
         return
 
@@ -138,18 +137,18 @@ class SrfFadeBattle:
     def make_progress( self ):
         cnt = len( self.__pos_list )
         for i in range( cnt, 0, -1 ):
-            index = i - 1
-            pos = self.__pos_list[ index ]
-            dir = self.__dir_list[ index ]
+            idx = i - 1
+            pos = self.__pos_list[ idx ]
+            dir = self.__dir_list[ idx ]
             self.__list[ pos[ 1 ] ][ pos[ 0 ] ] = self.__dest
 
             ret, dir = self.__is_finished( pos, dir )
             if True == ret:
-                self.__pos_list.pop( index )
-                self.__dir_list.pop( index )
+                self.__pos_list.pop( idx )
+                self.__dir_list.pop( idx )
             else:
-                self.__dir_list[ index ] = dir
-                self.__pos_list[ index ] = ( pos[ 0 ] + dir[ 0 ], pos[ 1 ] + dir[ 1 ] )
+                self.__dir_list[ idx ] = dir
+                self.__pos_list[ idx ] = ( pos[ 0 ] + dir[ 0 ], pos[ 1 ] + dir[ 1 ] )
 
     #-------------------------------------------------------------------------------
     # 侵入可能な方向があるか
@@ -212,10 +211,10 @@ class SrfFadeBattle:
         x = pos[ 0 ] + dir[ 0 ]
         y = pos[ 1 ] + dir[ 1 ]
 
-        if x < 0 or self.__screen_w <= x:
+        if x < 0 or self.__scr_wh <= x:
             return False
 
-        if y < 0 or self.__screen_h <= y:
+        if y < 0 or self.__scr_wh <= y:
             return False
 
         if self.__list[ y ][ x ] == self.__dest:
@@ -253,13 +252,10 @@ class SrfFadeBattle:
     # 描画
     #-------------------------------------------------------------------------------
     def draw( self ):
-        for y in range( self.__screen_h ):
-            for x in range( self.__screen_w ):
+        for y in range( self.__scr_wh ):
+            for x in range( self.__scr_wh ):
                 if True == self.__list[ y ][ x ]:
-                    pos_x = x * self.__block_w - self.__offset_x
-                    pos_y = y * self.__block_h - self.__offset_y
+                    pos_x = x * self.__blk_w - self.__ofs_x
+                    pos_y = y * self.__blk_h - self.__ofs_y
                     self.__screen.blit( self.__image, ( pos_x, pos_y ))
-
-
-
 

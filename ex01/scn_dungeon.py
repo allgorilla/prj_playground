@@ -74,14 +74,19 @@ class SceneDungeon( scn_base.SceneBase ):
 
         # 状態管理 - 移動量
         self.__mv = sts_move.StsMove()
-        self.__mv.set_destination( 12 )
+        self.__mv.set_destination( 16 )
         self.__mv.set_block_size( CELL_H, CELL_W )
 
         # 状態管理 - カーソル
         self.__cursor = sts_cursor.StsCursor()
 
         # フェード効果
-        state = srf_fade_btl.EnumFadeStatus.WIPE_COMPLETLY
+        #state = srf_fade_btl.EnumFadeStatus.FILL_COMPLETLY
+        #state = srf_fade_btl.EnumFadeStatus.FILL_SPREAD
+        #state = srf_fade_btl.EnumFadeStatus.FILL_SHRINK
+        #state = srf_fade_btl.EnumFadeStatus.WIPE_COMPLETLY
+        state = srf_fade_btl.EnumFadeStatus.WIPE_SPREAD
+        #state = srf_fade_btl.EnumFadeStatus.WIPE_SHRINK
         self.__fade = srf_fade_btl.SrfFadeBattle( self.__pygame, self.__screen, state )
 
         return
