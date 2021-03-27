@@ -80,7 +80,7 @@ class SceneDungeon( scn_base.SceneBase ):
         # 状態管理 - カーソル
         self.__cursor = sts_cursor.StsCursor()
 
-        # フェード効果
+        # ワイプエフェクト
         self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, self.__screen )
 
         return
@@ -139,7 +139,7 @@ class SceneDungeon( scn_base.SceneBase ):
             # プレイヤーアニメーション
             self.__chara.update( x )
 
-            # フェード効果
+            # ワイプエフェクト
             self.__wipe.make_progress()
 
             state = srf_wipe_btl.EnumWipeStatus.FILL_COMPLETELY
@@ -157,7 +157,7 @@ class SceneDungeon( scn_base.SceneBase ):
         # プレイヤーの表示
         self.__chara.draw( SCREEN_X / 2, SCREEN_Y / 2 )
 
-        # フェード効果
+        # ワイプエフェクト
         self.__wipe.draw()
 
         return

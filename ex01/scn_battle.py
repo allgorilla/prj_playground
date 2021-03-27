@@ -34,7 +34,7 @@ class SceneBattle( scn_base.SceneBase ):
         # 画像ファイルを読み込み
         self.__image = self.__pygame.image.load( "image/battle.png" ).convert()
 
-        # フェード効果
+        # ワイプエフェクト
         self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, self.__screen )
 
         return
@@ -47,7 +47,7 @@ class SceneBattle( scn_base.SceneBase ):
         self.scene  = scn_base.EnumScene.Battle
         self.changed = False
 
-        # フェード効果
+        # ワイプエフェクト
         state = srf_wipe_btl.EnumWipeStatus.WIPE_SPREAD
         self.__wipe.begin( state )
 
@@ -78,7 +78,7 @@ class SceneBattle( scn_base.SceneBase ):
             self.__pygame.event.pump()
             self.__pygame.time.wait( 16 )
 
-            # フェード効果
+            # ワイプエフェクト
             self.__wipe.make_progress()
 
             state = srf_wipe_btl.EnumWipeStatus.FILL_COMPLETELY
@@ -93,7 +93,7 @@ class SceneBattle( scn_base.SceneBase ):
         # 画像を描画
         self.__screen.blit( self.__image, ( 0, 0 ))
 
-        # フェード効果
+        # ワイプエフェクト
         self.__wipe.draw()
 
     #-------------------------------------------------------------------------------
