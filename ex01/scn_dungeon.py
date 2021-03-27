@@ -8,7 +8,7 @@ import threading
 import scn_base
 import srf_map
 import srf_chr
-import srf_fade_btl
+import srf_wipe_btl
 import sts_move
 import sts_cursor
 
@@ -39,7 +39,7 @@ class SceneDungeon( scn_base.SceneBase ):
     __pygame  = None
     __screen  = None
     __thread  = None
-    __fade    = None
+    __wipe    = None
     __mv      = None
     __px      = None
     __py      = None
@@ -81,7 +81,7 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__cursor = sts_cursor.StsCursor()
 
         # フェード効果
-        self.__fade = srf_fade_btl.SrfFadeBattle( self.__pygame, self.__screen )
+        self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, self.__screen )
 
         return
     #-------------------------------------------------------------------------------
@@ -93,8 +93,8 @@ class SceneDungeon( scn_base.SceneBase ):
         self.changed = False
         self.__cnt = 0
 
-        state = srf_fade_btl.EnumFadeStatus.WIPE_SPREAD
-        self.__fade.begin( state )
+        state = srf_wipe_btl.EnumWipeStatus.WIPE_SPREAD
+        self.__wipe.begin( state )
 
         if None != self.__thread:
             return False
@@ -111,7 +111,7 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__thread = None
         self.__cursor.clear_event()
 
-        self.__fade.end()
+        self.__wipe.end()
         return
 
     #-------------------------------------------------------------------------------
@@ -140,10 +140,10 @@ class SceneDungeon( scn_base.SceneBase ):
             self.__chara.update( x )
 
             # フェード効果
-            self.__fade.make_progress()
+            self.__wipe.make_progress()
 
-            state = srf_fade_btl.EnumFadeStatus.FILL_COMPLETELY
-            if state == self.__fade.get_state():
+            state = srf_wipe_btl.EnumWipeStatus.FILL_COMPLETELY
+            if state == self.__wipe.get_state():
                 self.change( scn_base.EnumScene.Battle )
 
     #-------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__chara.draw( SCREEN_X / 2, SCREEN_Y / 2 )
 
         # フェード効果
-        self.__fade.draw()
+        self.__wipe.draw()
 
         return
 
@@ -177,9 +177,17 @@ class SceneDungeon( scn_base.SceneBase ):
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     self.change( scn_base.EnumScene.Quit )
-                elif event.key == K_RETURN:
-                    state = srf_fade_btl.EnumFadeStatus.WIPE_SHRINK
-                    self.__fade.begin( state )
 
+            # 以降のキー入力はワイプ中には受け付けない
+            state = srf_wipe_btl.EnumWipeStatus.WIPE_COMPLETELY
+            if state != self.__wipe.get_state():
+                return
+
+            # 方向キー、決定キーの入力
+            if event.type == KEYDOWN:
+                if event.key == K_RETURN:
+                    state = srf_wipe_btl.EnumWipeStatus.WIPE_SHRINK
+                    self.__wipe.begin( state )
             self.__cursor.add_event( event )
+
         return

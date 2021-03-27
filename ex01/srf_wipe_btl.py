@@ -6,7 +6,7 @@ from enum import Enum, auto
 #-------------------------------------------------------------------------------
 # シーン列挙型
 #-------------------------------------------------------------------------------
-class EnumFadeStatus( Enum ):
+class EnumWipeStatus( Enum ):
 
     FILL_COMPLETELY = auto()
     FILL_SPREAD     = auto()
@@ -18,7 +18,7 @@ class EnumFadeStatus( Enum ):
 #-------------------------------------------------------------------------------
 # 移動マネージャークラス
 #-------------------------------------------------------------------------------
-class SrfFadeBattle:
+class SrfWipeBattle:
 
     __pygame     = None
     __screen     = None
@@ -79,27 +79,27 @@ class SrfFadeBattle:
     def __setup( self ):
 
         state = self.__state
-        if EnumFadeStatus.FILL_COMPLETELY == state:
+        if EnumWipeStatus.FILL_COMPLETELY == state:
             self.__is_spread = True
             self.__dest      = True
             init             = self.__dest
-        elif EnumFadeStatus.FILL_SPREAD == state:
+        elif EnumWipeStatus.FILL_SPREAD == state:
             self.__is_spread = True
             self.__dest      = True
             init             = not self.__dest
-        elif EnumFadeStatus.FILL_SHRINK == state:
+        elif EnumWipeStatus.FILL_SHRINK == state:
             self.__is_spread = False
             self.__dest      = False
             init             = not self.__dest
-        elif EnumFadeStatus.WIPE_COMPLETELY == state:
+        elif EnumWipeStatus.WIPE_COMPLETELY == state:
             self.__is_spread = False
             self.__dest      = False
             init             = self.__dest
-        elif EnumFadeStatus.WIPE_SPREAD == state:
+        elif EnumWipeStatus.WIPE_SPREAD == state:
             self.__is_spread = True
             self.__dest      = False
             init             = not self.__dest
-        elif EnumFadeStatus.WIPE_SHRINK == state:
+        elif EnumWipeStatus.WIPE_SHRINK == state:
             self.__is_spread = False
             self.__dest      = True
             init             = not self.__dest
@@ -151,17 +151,17 @@ class SrfFadeBattle:
 
                 if 0 == len( self.__pos_list ):
 
-                    if EnumFadeStatus.FILL_SPREAD == self.__state:
-                        self.__state = EnumFadeStatus.FILL_COMPLETELY
+                    if EnumWipeStatus.FILL_SPREAD == self.__state:
+                        self.__state = EnumWipeStatus.FILL_COMPLETELY
 
-                    elif EnumFadeStatus.WIPE_SHRINK == self.__state:
-                        self.__state = EnumFadeStatus.FILL_COMPLETELY
+                    elif EnumWipeStatus.WIPE_SHRINK == self.__state:
+                        self.__state = EnumWipeStatus.FILL_COMPLETELY
 
-                    elif EnumFadeStatus.FILL_SHRINK == self.__state:
-                        self.__state = EnumFadeStatus.WIPE_COMPLETELY
+                    elif EnumWipeStatus.FILL_SHRINK == self.__state:
+                        self.__state = EnumWipeStatus.WIPE_COMPLETELY
 
-                    elif EnumFadeStatus.WIPE_SPREAD == self.__state:
-                        self.__state = EnumFadeStatus.WIPE_COMPLETELY
+                    elif EnumWipeStatus.WIPE_SPREAD == self.__state:
+                        self.__state = EnumWipeStatus.WIPE_COMPLETELY
                     else:
                         pass
 
