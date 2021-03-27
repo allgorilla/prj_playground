@@ -8,6 +8,7 @@ import threading
 import scn_base
 import srf_map
 import srf_chr
+import srf_wipe_btl
 import sts_move
 import sts_cursor
 
@@ -37,13 +38,14 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     __pygame  = None
     __screen  = None
+    __thread  = None
+    __wipe    = None
     __mv      = None
     __px      = None
     __py      = None
     __chara   = None
     __map     = None
     __cursor  = None
-    __thread  = None
     __cnt     = None
 
     #-------------------------------------------------------------------------------
@@ -70,11 +72,16 @@ class SceneDungeon( scn_base.SceneBase ):
             print("")
             return
 
+        # 状態管理 - 移動量
         self.__mv = sts_move.StsMove()
-        self.__mv.set_destination( 12 )
+        self.__mv.set_destination( 16 )
         self.__mv.set_block_size( CELL_H, CELL_W )
 
+        # 状態管理 - カーソル
         self.__cursor = sts_cursor.StsCursor()
+
+        # ワイプエフェクト
+        self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, self.__screen, 8 )
 
         return
     #-------------------------------------------------------------------------------
@@ -85,6 +92,9 @@ class SceneDungeon( scn_base.SceneBase ):
         self.scene  = scn_base.EnumScene.Dungeon
         self.changed = False
         self.__cnt = 0
+
+        state = srf_wipe_btl.EnumWipeStatus.WIPE_SPREAD
+        self.__wipe.begin( state )
 
         if None != self.__thread:
             return False
@@ -100,6 +110,8 @@ class SceneDungeon( scn_base.SceneBase ):
     def end( self ):
         self.__thread = None
         self.__cursor.clear_event()
+
+        self.__wipe.end()
         return
 
     #-------------------------------------------------------------------------------
@@ -127,6 +139,13 @@ class SceneDungeon( scn_base.SceneBase ):
             # プレイヤーアニメーション
             self.__chara.update( x )
 
+            # ワイプエフェクト
+            self.__wipe.make_progress()
+
+            state = srf_wipe_btl.EnumWipeStatus.FILL_COMPLETELY
+            if state == self.__wipe.get_state():
+                self.change( scn_base.EnumScene.Battle )
+
     #-------------------------------------------------------------------------------
     # 描画
     #-------------------------------------------------------------------------------
@@ -135,8 +154,11 @@ class SceneDungeon( scn_base.SceneBase ):
         # 床と壁の表示
         self.__map.draw( self.__mv, self.__px, self.__py )
 
-        #プレイヤーの表示
+        # プレイヤーの表示
         self.__chara.draw( SCREEN_X / 2, SCREEN_Y / 2 )
+
+        # ワイプエフェクト
+        self.__wipe.draw()
 
         return
 
@@ -155,8 +177,17 @@ class SceneDungeon( scn_base.SceneBase ):
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     self.change( scn_base.EnumScene.Quit )
-                elif event.key == K_RETURN:
-                    self.change( scn_base.EnumScene.Battle )
 
+            # 以降のキー入力はワイプ中には受け付けない
+            state = srf_wipe_btl.EnumWipeStatus.WIPE_COMPLETELY
+            if state != self.__wipe.get_state():
+                return
+
+            # 方向キー、決定キーの入力
+            if event.type == KEYDOWN:
+                if event.key == K_RETURN:
+                    state = srf_wipe_btl.EnumWipeStatus.WIPE_SHRINK
+                    self.__wipe.begin( state )
             self.__cursor.add_event( event )
+
         return
