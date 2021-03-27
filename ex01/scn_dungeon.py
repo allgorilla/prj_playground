@@ -38,15 +38,15 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     __pygame  = None
     __screen  = None
+    __thread  = None
+    __fade    = None
     __mv      = None
     __px      = None
     __py      = None
     __chara   = None
     __map     = None
     __cursor  = None
-    __thread  = None
     __cnt     = None
-    __fade    = None
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -81,13 +81,7 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__cursor = sts_cursor.StsCursor()
 
         # フェード効果
-        #state = srf_fade_btl.EnumFadeStatus.FILL_COMPLETLY
-        #state = srf_fade_btl.EnumFadeStatus.FILL_SPREAD
-        #state = srf_fade_btl.EnumFadeStatus.FILL_SHRINK
-        #state = srf_fade_btl.EnumFadeStatus.WIPE_COMPLETLY
-        state = srf_fade_btl.EnumFadeStatus.WIPE_SPREAD
-        #state = srf_fade_btl.EnumFadeStatus.WIPE_SHRINK
-        self.__fade = srf_fade_btl.SrfFadeBattle( self.__pygame, self.__screen, state )
+        self.__fade = srf_fade_btl.SrfFadeBattle( self.__pygame, self.__screen )
 
         return
     #-------------------------------------------------------------------------------
@@ -98,6 +92,9 @@ class SceneDungeon( scn_base.SceneBase ):
         self.scene  = scn_base.EnumScene.Dungeon
         self.changed = False
         self.__cnt = 0
+
+        state = srf_fade_btl.EnumFadeStatus.WIPE_SPREAD
+        self.__fade.begin( state )
 
         if None != self.__thread:
             return False
@@ -113,6 +110,8 @@ class SceneDungeon( scn_base.SceneBase ):
     def end( self ):
         self.__thread = None
         self.__cursor.clear_event()
+
+        self.__fade.end()
         return
 
     #-------------------------------------------------------------------------------
@@ -142,6 +141,11 @@ class SceneDungeon( scn_base.SceneBase ):
 
             # フェード効果
             self.__fade.make_progress()
+
+            state = srf_fade_btl.EnumFadeStatus.FILL_COMPLETELY
+            if state == self.__fade.get_state():
+                self.change( scn_base.EnumScene.Battle )
+
     #-------------------------------------------------------------------------------
     # 描画
     #-------------------------------------------------------------------------------
@@ -155,6 +159,7 @@ class SceneDungeon( scn_base.SceneBase ):
 
         # フェード効果
         self.__fade.draw()
+
         return
 
     #-------------------------------------------------------------------------------
@@ -173,7 +178,8 @@ class SceneDungeon( scn_base.SceneBase ):
                 if event.key == K_ESCAPE:
                     self.change( scn_base.EnumScene.Quit )
                 elif event.key == K_RETURN:
-                    self.change( scn_base.EnumScene.Battle )
+                    state = srf_fade_btl.EnumFadeStatus.WIPE_SHRINK
+                    self.__fade.begin( state )
 
             self.__cursor.add_event( event )
         return

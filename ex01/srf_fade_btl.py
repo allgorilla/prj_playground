@@ -8,12 +8,12 @@ from enum import Enum, auto
 #-------------------------------------------------------------------------------
 class EnumFadeStatus( Enum ):
 
-    FILL_COMPLETLY = auto()
-    FILL_SPREAD    = auto()
-    FILL_SHRINK    = auto()
-    WIPE_COMPLETLY = auto()
-    WIPE_SPREAD    = auto()
-    WIPE_SHRINK    = auto()
+    FILL_COMPLETELY = auto()
+    FILL_SPREAD     = auto()
+    FILL_SHRINK     = auto()
+    WIPE_COMPLETELY = auto()
+    WIPE_SPREAD     = auto()
+    WIPE_SHRINK     = auto()
 
 #-------------------------------------------------------------------------------
 # 移動マネージャークラス
@@ -34,11 +34,12 @@ class SrfFadeBattle:
     __dir_list   = []
     __dest       = None
     __is_spread  = None
+    __is_enable  = None
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
     #-------------------------------------------------------------------------------
-    def __init__( self, pygame, screen, state ):
+    def __init__( self, pygame, screen ):
 
         self.__pygame   = pygame
         self.__screen   = screen
@@ -64,14 +65,11 @@ class SrfFadeBattle:
             ofs_y = w - h
             ofs_x = 0
 
-        self.__state = state
-        self.__blk_w = blk_w
-        self.__blk_h = blk_h
-        self.__ofs_x = ofs_x
-        self.__ofs_y = ofs_y
-
-        # データ生成
-        self.__setup()
+        self.__blk_w     = blk_w
+        self.__blk_h     = blk_h
+        self.__ofs_x     = ofs_x
+        self.__ofs_y     = ofs_y
+        self.__is_enable = False
 
         return
 
@@ -81,7 +79,7 @@ class SrfFadeBattle:
     def __setup( self ):
 
         state = self.__state
-        if EnumFadeStatus.FILL_COMPLETLY == state:
+        if EnumFadeStatus.FILL_COMPLETELY == state:
             self.__is_spread = True
             self.__dest      = True
             init             = self.__dest
@@ -93,7 +91,7 @@ class SrfFadeBattle:
             self.__is_spread = False
             self.__dest      = False
             init             = not self.__dest
-        elif EnumFadeStatus.WIPE_COMPLETLY == state:
+        elif EnumFadeStatus.WIPE_COMPLETELY == state:
             self.__is_spread = False
             self.__dest      = False
             init             = self.__dest
@@ -135,6 +133,10 @@ class SrfFadeBattle:
     # アニメーションを進める
     #-------------------------------------------------------------------------------
     def make_progress( self ):
+
+        if False == self.__is_enable:
+            return
+
         cnt = len( self.__pos_list )
         for i in range( cnt, 0, -1 ):
             idx = i - 1
@@ -146,9 +148,28 @@ class SrfFadeBattle:
             if True == ret:
                 self.__pos_list.pop( idx )
                 self.__dir_list.pop( idx )
+
+                if 0 == len( self.__pos_list ):
+
+                    if EnumFadeStatus.FILL_SPREAD == self.__state:
+                        self.__state = EnumFadeStatus.FILL_COMPLETELY
+
+                    elif EnumFadeStatus.WIPE_SHRINK == self.__state:
+                        self.__state = EnumFadeStatus.FILL_COMPLETELY
+
+                    elif EnumFadeStatus.FILL_SHRINK == self.__state:
+                        self.__state = EnumFadeStatus.WIPE_COMPLETELY
+
+                    elif EnumFadeStatus.WIPE_SPREAD == self.__state:
+                        self.__state = EnumFadeStatus.WIPE_COMPLETELY
+                    else:
+                        pass
+
             else:
                 self.__dir_list[ idx ] = dir
                 self.__pos_list[ idx ] = ( pos[ 0 ] + dir[ 0 ], pos[ 1 ] + dir[ 1 ] )
+
+        return
 
     #-------------------------------------------------------------------------------
     # 侵入可能な方向があるか
@@ -252,10 +273,39 @@ class SrfFadeBattle:
     # 描画
     #-------------------------------------------------------------------------------
     def draw( self ):
+
+        if False == self.__is_enable:
+            return
+
         for y in range( self.__scr_wh ):
             for x in range( self.__scr_wh ):
                 if True == self.__list[ y ][ x ]:
                     pos_x = x * self.__blk_w - self.__ofs_x
                     pos_y = y * self.__blk_h - self.__ofs_y
                     self.__screen.blit( self.__image, ( pos_x, pos_y ))
+        return
 
+    #-------------------------------------------------------------------------------
+    # フェード開始
+    #-------------------------------------------------------------------------------
+    def begin( self, state ):
+
+        self.__state     = state
+        self.__is_enable = True
+
+        # データ生成
+        self.__setup()
+
+    #-------------------------------------------------------------------------------
+    # フェード終了
+    #-------------------------------------------------------------------------------
+    def end( self ):
+
+        self.__is_enable = False
+
+    #-------------------------------------------------------------------------------
+    # 状態取得
+    #-------------------------------------------------------------------------------
+    def get_state( self ):
+
+        return self.__state
