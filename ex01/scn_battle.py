@@ -35,7 +35,7 @@ class SceneBattle( scn_base.SceneBase ):
         self.__image = self.__pygame.image.load( "image/battle.png" ).convert()
 
         # ワイプエフェクト
-        self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, self.__screen )
+        self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, self.__screen, 8 )
 
         return
 

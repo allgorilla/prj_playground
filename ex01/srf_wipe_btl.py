@@ -23,11 +23,6 @@ class SrfWipeBattle:
     __pygame     = None
     __screen     = None
     __scr_wh     = None
-    __ofs_x      = None
-    __ofs_y      = None
-    __image      = None
-    __image_w    = None
-    __image_h    = None
     __state      = None
     __list       = None
     __pos_list   = []
@@ -39,36 +34,15 @@ class SrfWipeBattle:
     #-------------------------------------------------------------------------------
     # コンストラクタ
     #-------------------------------------------------------------------------------
-    def __init__( self, pygame, screen ):
+    def __init__( self, pygame, screen, wh ):
 
-        self.__pygame   = pygame
-        self.__screen   = screen
+        self.__pygame    = pygame
+        self.__screen    = screen
+        self.__scr_wh    = wh
 
         # 画像ファイルを読み込み
-        self.__image = self.__pygame.image.load( "image/black_64.bmp" ).convert()
-        blk_w        = self.__image.get_width()
-        blk_h        = self.__image.get_height()
-
-        w = -( -self.__screen.get_width() // 2 )
-        h = -( -self.__screen.get_height() // 2 )
-        scr_w = -( -w // blk_w ) * 2
-        scr_h = -( -h // blk_h ) * 2
-
-        # エフェクト範囲を正方形にする
-        # アスペクト比の差は描画時に補正する
-        if scr_w < scr_h:
-            self.__scr_wh = scr_h
-            ofs_x = h - w
-            ofs_y = 0
-        else:
-            self.__scr_wh = scr_w
-            ofs_y = w - h
-            ofs_x = 0
-
-        self.__blk_w     = blk_w
-        self.__blk_h     = blk_h
-        self.__ofs_x     = ofs_x
-        self.__ofs_y     = ofs_y
+        self.__blk_w     = -( -self.__screen.get_width() // wh )
+        self.__blk_h     = -( -self.__screen.get_height() // wh )
         self.__is_enable = False
 
         return
@@ -280,9 +254,11 @@ class SrfWipeBattle:
         for y in range( self.__scr_wh ):
             for x in range( self.__scr_wh ):
                 if True == self.__list[ y ][ x ]:
-                    pos_x = x * self.__blk_w - self.__ofs_x
-                    pos_y = y * self.__blk_h - self.__ofs_y
-                    self.__screen.blit( self.__image, ( pos_x, pos_y ))
+                    x0 = ( x + 0 ) * self.__blk_w
+                    y0 = ( y + 0 ) * self.__blk_h
+                    x1 = ( 1 ) * self.__blk_w
+                    y1 = ( 1 ) * self.__blk_h
+                    self.__screen.fill(( 0, 0, 0, 0 ), ( x0, y0, x1, y1 ))
         return
 
     #-------------------------------------------------------------------------------
