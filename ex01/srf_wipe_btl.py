@@ -34,15 +34,10 @@ class SrfWipeBattle:
     #-------------------------------------------------------------------------------
     # コンストラクタ
     #-------------------------------------------------------------------------------
-    def __init__( self, pygame, screen, wh ):
+    def __init__( self, pygame, wh ):
 
         self.__pygame    = pygame
-        self.__screen    = screen
         self.__scr_wh    = wh
-
-        # 画像ファイルを読み込み
-        self.__blk_w     = -( -self.__screen.get_width() // wh )
-        self.__blk_h     = -( -self.__screen.get_height() // wh )
         self.__is_enable = False
 
         return
@@ -246,19 +241,21 @@ class SrfWipeBattle:
     #-------------------------------------------------------------------------------
     # 描画
     #-------------------------------------------------------------------------------
-    def draw( self ):
+    def draw( self, screen ):
 
         if False == self.__is_enable:
             return
 
+        blk_w = -( -screen.get_width() // self.__scr_wh )
+        blk_h = -( -screen.get_height() // self.__scr_wh )
         for y in range( self.__scr_wh ):
             for x in range( self.__scr_wh ):
                 if True == self.__list[ y ][ x ]:
-                    x0 = ( x + 0 ) * self.__blk_w
-                    y0 = ( y + 0 ) * self.__blk_h
-                    x1 = ( 1 ) * self.__blk_w
-                    y1 = ( 1 ) * self.__blk_h
-                    self.__screen.fill(( 0, 0, 0, 0 ), ( x0, y0, x1, y1 ))
+                    x0 = ( x + 0 ) * blk_w
+                    y0 = ( y + 0 ) * blk_h
+                    x1 = ( 1 ) * blk_w
+                    y1 = ( 1 ) * blk_h
+                    screen.fill(( 0, 0, 0, 0 ), ( x0, y0, x1, y1 ))
         return
 
     #-------------------------------------------------------------------------------

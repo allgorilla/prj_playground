@@ -11,7 +11,6 @@ class ObjectBase:
     # Public
     #-------------------------------------------------------------------------------
     pygame     = None
-    screen     = None
     fcnt       = None
     fcnt_max   = None
     img_list   = []
@@ -27,10 +26,9 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     # コンストラクタ
     #-------------------------------------------------------------------------------
-    def __init__( self, pygame, screen, fcnt_max, block_w, block_h ):
+    def __init__( self, pygame, fcnt_max, block_w, block_h ):
 
-        self.pygame     = pygame
-        self.screen     = screen
+        self.pygame   = pygame
         self.fcnt     = 0
         self.fcnt_max = fcnt_max
         self.block_w  = block_w
@@ -88,7 +86,7 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     # プレイヤーを描画
     #-------------------------------------------------------------------------------
-    def draw( self, x, y  ):
+    def draw( self, screen, x, y  ):
 
         if self.dir_x == -1:
             # 左向き画像
@@ -101,6 +99,6 @@ class ObjectBase:
         img_h = image.get_height()
         pos_x = ( x * self.block_w ) - ( img_w / 2 )
         pos_y = ( y * self.block_h ) - ( self.block_h / 2 ) - ( img_h - self.block_h )
-        self.screen.blit( image, ( pos_x, pos_y ))
+        screen.blit( image, ( pos_x, pos_y ))
 
         return

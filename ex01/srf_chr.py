@@ -12,10 +12,9 @@ class SrfCharacter( obj_base.ObjectBase ):
     #-------------------------------------------------------------------------------
     # コンストラクタ
     #-------------------------------------------------------------------------------
-    def __init__( self, pygame, screen, fcnt_max, block_w, block_h ):
+    def __init__( self, pygame, fcnt_max, block_w, block_h ):
 
         self.pygame   = pygame
-        self.screen   = screen
         self.fcnt     = 0
         self.fcnt_max = fcnt_max
         self.block_w  = block_w
@@ -23,4 +22,3 @@ class SrfCharacter( obj_base.ObjectBase ):
         self.dir_x    = -1
 
         return
- 

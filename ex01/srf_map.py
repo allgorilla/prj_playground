@@ -17,7 +17,6 @@ g_img_wall  = None
 class SrfMap:
 
     __pygame  = None
-    __scr     = None
     __map_w   = None
     __map_h   = None
     __block_w = None
@@ -32,7 +31,7 @@ class SrfMap:
     # param(in) ブロックのサイズ(X方向ドット数)
     # param(in) ブロックのサイズ(Y方向ドット数)
     #-------------------------------------------------------------------------------
-    def __init__( self, pygame, screen, filename, map_w, map_h, block_w, block_h ):
+    def __init__( self, pygame, filename, map_w, map_h, block_w, block_h ):
 
         global g_img_map
         global g_img_black
@@ -40,7 +39,6 @@ class SrfMap:
         global g_img_wall
 
         self.__pygame  = pygame
-        self.__scr     = screen
         self.__map_w   = map_w
         self.__map_h   = map_h
         self.__block_w = block_w
@@ -73,12 +71,12 @@ class SrfMap:
     #-------------------------------------------------------------------------------
     # 画像表示（ブロック指定）
     #-------------------------------------------------------------------------------
-    def __put_block( self, move, img, x, y ):
+    def __put_block( self, screen, move, img, x, y ):
 
         pos_x = ( x * self.__block_w ) - ( self.__block_w / 2 )
         pos_y = ( y * self.__block_h ) - ( self.__block_h / 2 )
         move_x, move_y = move.get_move_offset()
-        self.__scr.blit( img, ( pos_x + move_x, pos_y + move_y ))
+        screen.blit( img, ( pos_x + move_x, pos_y + move_y ))
 
         return
 
@@ -89,7 +87,7 @@ class SrfMap:
     # param(in) プレイヤーのマップ上の現在地(X方向)
     # param(in) プレイヤーのマップ上の現在地(Y方向)
     #-------------------------------------------------------------------------------
-    def draw( self, move, cx, cy ):
+    def draw( self, screen, move, cx, cy ):
 
         rect = g_img_map.get_rect()
         bx = int( self.__map_w / 2 ) # マップ→ウインドウの表示範囲の補正値(X方向)
@@ -126,7 +124,7 @@ class SrfMap:
                             img = g_img_floor
                         elif dotcol == DOTCOL_WALL:
                             img = g_img_wall
-                self.__put_block( move, img, ox + bx, oy + by )
+                self.__put_block( screen, move, img, ox + bx, oy + by )
 
         return
 

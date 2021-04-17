@@ -19,16 +19,6 @@ CELL_H = 64
 CELL_W = 64
 
 #-------------------------------------------------------------------------------
-# プレイヤー表示（ブロック指定）
-#-------------------------------------------------------------------------------
-def put_player( screen, img, x, y ):
-
-    pos_x = ( x * CELL_W ) - ( PLAYER_W/2 )
-    pos_y = ( y * CELL_H ) - ( CELL_H/2 ) - ( PLAYER_H - CELL_H )
-    screen.blit( img, ( pos_x, pos_y ))
-    return
-
-#-------------------------------------------------------------------------------
 # シーンクラス
 #-------------------------------------------------------------------------------
 class SceneDungeon( scn_base.SceneBase ):
@@ -58,12 +48,12 @@ class SceneDungeon( scn_base.SceneBase ):
         self.scene  = scn_base.EnumScene.Dungeon
 
         # プレイヤー初期化
-        self.__chara = srf_chr.SrfCharacter( self.__pygame, self.__screen, 20, CELL_W, CELL_H )
+        self.__chara = srf_chr.SrfCharacter( self.__pygame, 20, CELL_W, CELL_H )
         self.__chara.add_pattern( "image/human_a.bmp" )
         self.__chara.add_pattern( "image/human_b.bmp" )
 
         # マップ初期化
-        self.__map = srf_map.SrfMap( self.__pygame, self.__screen, "image/map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
+        self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
 
         find, self.__px, self.__py = self.__map.get_start_pos()
         if find == False:
@@ -81,7 +71,7 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__cursor = sts_cursor.StsCursor()
 
         # ワイプエフェクト
-        self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, self.__screen, 8 )
+        self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, 8 )
 
         return
     #-------------------------------------------------------------------------------
@@ -152,13 +142,13 @@ class SceneDungeon( scn_base.SceneBase ):
     def draw( self ):
 
         # 床と壁の表示
-        self.__map.draw( self.__mv, self.__px, self.__py )
+        self.__map.draw( self.__screen, self.__mv, self.__px, self.__py )
 
         # プレイヤーの表示
-        self.__chara.draw( SCREEN_X / 2, SCREEN_Y / 2 )
+        self.__chara.draw( self.__screen, SCREEN_X / 2, SCREEN_Y / 2 )
 
         # ワイプエフェクト
-        self.__wipe.draw()
+        self.__wipe.draw( self.__screen )
 
         return
 
