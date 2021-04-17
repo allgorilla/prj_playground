@@ -2,9 +2,6 @@
 from pygame.locals import *
 import pygame
 
-PLAYER_H = 80
-PLAYER_W = 80
-
 #-------------------------------------------------------------------------------
 # 移動マネージャークラス
 #-------------------------------------------------------------------------------
@@ -93,8 +90,10 @@ class SrfCharacter:
             # 右向き画像
             image = self.__img_lr[ 1 ]
 
-        pos_x = ( x * self.__block_w ) - ( PLAYER_W / 2 )
-        pos_y = ( y * self.__block_h ) - ( self.__block_h / 2 ) - ( PLAYER_H - self.__block_h )
+        img_w = image.get_width()
+        img_h = image.get_height()
+        pos_x = ( x * self.__block_w ) - ( img_w / 2 )
+        pos_y = ( y * self.__block_h ) - ( self.__block_h / 2 ) - ( img_h - self.__block_h )
         self.__screen.blit( image, ( pos_x, pos_y ))
 
         return
