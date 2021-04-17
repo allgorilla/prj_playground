@@ -48,7 +48,7 @@ class SceneDungeon( scn_base.SceneBase ):
         self.scene  = scn_base.EnumScene.Dungeon
 
         # プレイヤー初期化
-        self.__chara = obj_party_player.SrfCharacter( self.__pygame, 20, CELL_W, CELL_H )
+        self.__chara = obj_party_player.ObjectPartyPlayer( self.__pygame, 20, CELL_W, CELL_H )
         self.__chara.add_pattern( "image/human_a.bmp" )
         self.__chara.add_pattern( "image/human_b.bmp" )
 
