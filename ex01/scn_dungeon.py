@@ -145,10 +145,8 @@ class SceneDungeon( scn_base.SceneBase ):
                     self.__mv.set_direction( x, y )
             
             # オブジェクトアニメーション
-#            for object in self.__obj_list:
-#                object.update( x )
-            object = self.__obj_list[ 0 ]
-            object.update( x )
+            for object in self.__obj_list:
+                object.update( x )
 
             # ワイプエフェクト
             self.__wipe.make_progress()
@@ -166,10 +164,8 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__map.draw( self.__screen, self.__mv, self.__px, self.__py )
 
         # オブジェクトアニメーション
-#        for object in self.__obj_list:
-#            object.draw( self.__screen, ( self.__px, self.__py ))
-        object = self.__obj_list[ 0 ]
-        object.draw( self.__screen, ( self.__px, self.__py ))
+        for object in self.__obj_list:
+            object.draw( self.__screen, ( self.__px, self.__py ))
 
         # ワイプエフェクト
         self.__wipe.draw( self.__screen )

@@ -34,6 +34,8 @@ class ObjectBase:
         self.fmax     = fmax
         self.fcur     = 0
         self.dir_x    = -1
+        self.img_list = []
+        self.img_lr   = []
 
         return
 
