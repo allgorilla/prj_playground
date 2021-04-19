@@ -8,6 +8,8 @@ import threading
 import scn_base
 import srf_map
 import obj_party_player
+import obj_enemy_mino
+import obj_enemy_mummy
 import srf_wipe_btl
 import sts_move
 import sts_cursor
@@ -26,17 +28,17 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     # メンバ（Private）
     #-------------------------------------------------------------------------------
-    __pygame  = None
-    __screen  = None
-    __thread  = None
-    __wipe    = None
-    __mv      = None
-    __px      = None
-    __py      = None
-    __chara   = None
-    __map     = None
-    __cursor  = None
-    __cnt     = None
+    __pygame   = None
+    __screen   = None
+    __thread   = None
+    __wipe     = None
+    __mv       = None
+    __px       = None
+    __py       = None
+    __map      = None
+    __cursor   = None
+    __cnt      = None
+    __obj_list = []
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -47,13 +49,29 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__screen = screen
         self.scene  = scn_base.EnumScene.Dungeon
 
-        # プレイヤー初期化
-        self.__chara = obj_party_player.ObjectPartyPlayer( self.__pygame, 20, CELL_W, CELL_H )
-        self.__chara.add_pattern( "image/human_a.bmp" )
-        self.__chara.add_pattern( "image/human_b.bmp" )
-
         # マップ初期化
         self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
+
+        # オブジェクト初期化：プレイヤー
+        pos = self.__map.get_player_pos()
+        object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
+        object.add_pattern( "image/human_a.bmp" )
+        object.add_pattern( "image/human_b.bmp" )
+        self.__obj_list.append( object )
+
+        # オブジェクト初期化：敵ミノタウロス
+        pos = self.__map.get_enemy_pos()
+        object = obj_enemy_mino.ObjectEnemyMino( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
+        object.add_pattern( "image/enemy_mino_a.bmp" )
+        object.add_pattern( "image/enemy_mino_b.bmp" )
+        self.__obj_list.append( object )
+
+        # オブジェクト初期化：敵マミー
+        pos = self.__map.get_enemy_pos()
+        object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
+        object.add_pattern( "image/enemy_mummy_a.bmp" )
+        object.add_pattern( "image/enemy_mummy_b.bmp" )
+        self.__obj_list.append( object )
 
         find, self.__px, self.__py = self.__map.get_start_pos()
         if find == False:
@@ -126,8 +144,11 @@ class SceneDungeon( scn_base.SceneBase ):
                     self.__py += y
                     self.__mv.set_direction( x, y )
             
-            # プレイヤーアニメーション
-            self.__chara.update( x )
+            # オブジェクトアニメーション
+#            for object in self.__obj_list:
+#                object.update( x )
+            object = self.__obj_list[ 0 ]
+            object.update( x )
 
             # ワイプエフェクト
             self.__wipe.make_progress()
@@ -144,8 +165,11 @@ class SceneDungeon( scn_base.SceneBase ):
         # 床と壁の表示
         self.__map.draw( self.__screen, self.__mv, self.__px, self.__py )
 
-        # プレイヤーの表示
-        self.__chara.draw( self.__screen, SCREEN_X / 2, SCREEN_Y / 2 )
+        # オブジェクトアニメーション
+#        for object in self.__obj_list:
+#            object.draw( self.__screen, ( self.__px, self.__py ))
+        object = self.__obj_list[ 0 ]
+        object.draw( self.__screen, ( self.__px, self.__py ))
 
         # ワイプエフェクト
         self.__wipe.draw( self.__screen )

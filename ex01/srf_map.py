@@ -3,6 +3,7 @@ from pygame.locals import *
 import pygame
 
 DOTCOL_START_POS = (0,0,255,255)
+DOTCOL_ENEMY = (255,0,0,255)
 DOTCOL_FLOOR = (255,255,255,255)
 DOTCOL_WALL = (0,0,0,255)
 
@@ -16,11 +17,13 @@ g_img_wall  = None
 #-------------------------------------------------------------------------------
 class SrfMap:
 
-    __pygame  = None
-    __map_w   = None
-    __map_h   = None
-    __block_w = None
-    __block_h = None
+    __pygame         = None
+    __map_w          = None
+    __map_h          = None
+    __block_w        = None
+    __block_h        = None
+    __player_pos     = None
+    __enemy_pos_list = []
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -52,6 +55,14 @@ class SrfMap:
         g_img_floor = self.__pygame.image.load( "image/floor.bmp" )
         g_img_wall  = self.__pygame.image.load( "image/wall.bmp" )
 
+        for y in range( 0, g_img_map.get_height() ):
+            for x in range( 0, g_img_map.get_width() ):
+                pos = ( x, y )
+                dotcol = g_img_map.get_at( pos )
+                if dotcol == DOTCOL_START_POS:
+                    self.__player_pos = pos
+                elif dotcol == DOTCOL_ENEMY:
+                    self.__enemy_pos_list.append( pos )
         return
 
     #-------------------------------------------------------------------------------
@@ -117,10 +128,13 @@ class SrfMap:
                 img = g_img_black
                 if mx >= rect.left and mx < rect.right:
                     if my >= rect.top and my < rect.bottom:
-                        dotcol = g_img_map.get_at(( mx, my ))
+                        pos = ( mx, my )
+                        dotcol = g_img_map.get_at( pos )
                         if dotcol == DOTCOL_START_POS:
                             img = g_img_floor
                         elif dotcol == DOTCOL_FLOOR:
+                            img = g_img_floor
+                        elif dotcol == DOTCOL_ENEMY:
                             img = g_img_floor
                         elif dotcol == DOTCOL_WALL:
                             img = g_img_wall
@@ -153,3 +167,13 @@ class SrfMap:
             return True
 
         return False
+    #-------------------------------------------------------------------------------
+    # プレイヤーの座標を取得
+    #-------------------------------------------------------------------------------
+    def get_player_pos( self ):
+        return self.__player_pos
+    #-------------------------------------------------------------------------------
+    # 敵の座標を１つ取得
+    #-------------------------------------------------------------------------------
+    def get_enemy_pos( self ):
+        return self.__enemy_pos_list.pop( 0 )
