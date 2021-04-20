@@ -69,7 +69,7 @@ class ObjectBase:
             self.img_lr = self.img_list.pop( 0 )
 
     #-------------------------------------------------------------------------------
-    # プレイヤーを描画
+    # 状態を更新
     #-------------------------------------------------------------------------------
     def update( self, x ):
 
@@ -88,7 +88,7 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     # プレイヤーを描画
     #-------------------------------------------------------------------------------
-    def draw( self, screen, view_pos ):
+    def draw( self, screen, view_pos, move ):
 
         if self.dir_x == -1:
             # 左向き画像
@@ -97,10 +97,11 @@ class ObjectBase:
             # 右向き画像
             image = self.img_lr[ 1 ]
 
-        x = view_pos[ 0 ] - self.pos[ 0 ] + ( screen.get_width() / self.block[ 0 ] ) / 2
-        y = view_pos[ 1 ] - self.pos[ 1 ] + ( screen.get_height() / self.block[ 1 ] ) / 2
+        move_x, move_y = move.get_move_offset()
+        x = self.pos[ 0 ] - view_pos[ 0 ] + ( screen.get_width() / self.block[ 0 ] ) / 2
+        y = self.pos[ 1 ] - view_pos[ 1 ] + ( screen.get_height() / self.block[ 1 ] ) / 2
         pos_x = ( x * self.block[ 0 ] ) - ( image.get_width() / 2 )
         pos_y = ( y * self.block[ 1 ] ) - ( self.block[ 0 ] / 2 ) - ( image.get_height() - self.block[ 0 ] )
-        screen.blit( image, ( pos_x, pos_y ))
+        screen.blit( image, ( pos_x + move_x, pos_y + move_y ))
 
         return

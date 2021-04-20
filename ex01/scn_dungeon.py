@@ -52,13 +52,6 @@ class SceneDungeon( scn_base.SceneBase ):
         # マップ初期化
         self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
 
-        # オブジェクト初期化：プレイヤー
-        pos = self.__map.get_player_pos()
-        object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
-        object.add_pattern( "image/human_a.bmp" )
-        object.add_pattern( "image/human_b.bmp" )
-        self.__obj_list.append( object )
-
         # オブジェクト初期化：敵ミノタウロス
         pos = self.__map.get_enemy_pos()
         object = obj_enemy_mino.ObjectEnemyMino( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
@@ -73,12 +66,20 @@ class SceneDungeon( scn_base.SceneBase ):
         object.add_pattern( "image/enemy_mummy_b.bmp" )
         self.__obj_list.append( object )
 
-        find, self.__px, self.__py = self.__map.get_start_pos()
-        if find == False:
-            print("")
-            print("【異常終了】マップにスタート地点が見つかりません")
-            print("")
-            return
+        # オブジェクト初期化：ドラゴン
+        pos = self.__map.get_enemy_pos()
+        object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
+        object.add_pattern( "image/enemy_dragon_a.bmp" )
+        object.add_pattern( "image/enemy_dragon_b.bmp" )
+        self.__obj_list.append( object )
+
+        # オブジェクト初期化：プレイヤー
+        pos = self.__map.get_player_pos()
+        ( self.__px, self.__py ) = pos
+        object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
+        object.add_pattern( "image/human_a.bmp" )
+        object.add_pattern( "image/human_b.bmp" )
+        self.__obj_list.append( object )
 
         # 状態管理 - 移動量
         self.__mv = sts_move.StsMove()
@@ -161,11 +162,11 @@ class SceneDungeon( scn_base.SceneBase ):
     def draw( self ):
 
         # 床と壁の表示
-        self.__map.draw( self.__screen, self.__mv, self.__px, self.__py )
+        self.__map.draw( self.__screen, ( self.__px, self.__py ), self.__mv )
 
         # オブジェクトアニメーション
         for object in self.__obj_list:
-            object.draw( self.__screen, ( self.__px, self.__py ))
+            object.draw( self.__screen, ( self.__px, self.__py ), self.__mv )
 
         # ワイプエフェクト
         self.__wipe.draw( self.__screen )

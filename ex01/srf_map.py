@@ -66,20 +66,6 @@ class SrfMap:
         return
 
     #-------------------------------------------------------------------------------
-    # スタート位置を取得する
-    #-------------------------------------------------------------------------------
-    def get_start_pos( self ):
-
-        rect = g_img_map.get_rect()
-        for y in range( rect.top, rect.bottom ):
-            for x in range( rect.left, rect.right ):
-                color = g_img_map.get_at(( x, y ))
-                if color == DOTCOL_START_POS:
-                    return True, x, y
-
-        return False, 0, 0
-
-    #-------------------------------------------------------------------------------
     # 画像表示（ブロック指定）
     #-------------------------------------------------------------------------------
     def __put_block( self, screen, move, img, x, y ):
@@ -98,7 +84,7 @@ class SrfMap:
     # param(in) プレイヤーのマップ上の現在地(X方向)
     # param(in) プレイヤーのマップ上の現在地(Y方向)
     #-------------------------------------------------------------------------------
-    def draw( self, screen, move, cx, cy ):
+    def draw( self, screen, view_pos, move ):
 
         rect = g_img_map.get_rect()
         bx = int( self.__map_w / 2 ) # マップ→ウインドウの表示範囲の補正値(X方向)
@@ -122,8 +108,8 @@ class SrfMap:
         for oy in range( -sy, ey ):
             for ox in range( -sx, ex ):
 
-                mx = ox + cx # マップから読みだす対象のX座標
-                my = oy + cy # マップから読みだす対象のY座標
+                mx = ox + view_pos[ 0 ] # マップから読みだす対象のX座標
+                my = oy + view_pos[ 1 ] # マップから読みだす対象のY座標
 
                 img = g_img_black
                 if mx >= rect.left and mx < rect.right:
