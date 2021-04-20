@@ -55,30 +55,30 @@ class SceneDungeon( scn_base.SceneBase ):
         # オブジェクト初期化：敵ミノタウロス
         pos = self.__map.get_enemy_pos()
         object = obj_enemy_mino.ObjectEnemyMino( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
-        object.add_pattern( "image/enemy_mino_a.bmp" )
-        object.add_pattern( "image/enemy_mino_b.bmp" )
+        object.add_pattern( "image/enemy_mino_a.png" )
+        object.add_pattern( "image/enemy_mino_b.png" )
         self.__obj_list.append( object )
 
         # オブジェクト初期化：敵マミー
         pos = self.__map.get_enemy_pos()
         object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
-        object.add_pattern( "image/enemy_mummy_a.bmp" )
-        object.add_pattern( "image/enemy_mummy_b.bmp" )
+        object.add_pattern( "image/enemy_mummy_a.png" )
+        object.add_pattern( "image/enemy_mummy_b.png" )
         self.__obj_list.append( object )
 
         # オブジェクト初期化：ドラゴン
         pos = self.__map.get_enemy_pos()
         object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
-        object.add_pattern( "image/enemy_dragon_a.bmp" )
-        object.add_pattern( "image/enemy_dragon_b.bmp" )
+        object.add_pattern( "image/enemy_dragon_a.png" )
+        object.add_pattern( "image/enemy_dragon_b.png" )
         self.__obj_list.append( object )
 
         # オブジェクト初期化：プレイヤー
         pos = self.__map.get_player_pos()
         ( self.__px, self.__py ) = pos
         object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
-        object.add_pattern( "image/human_a.bmp" )
-        object.add_pattern( "image/human_b.bmp" )
+        object.add_pattern( "image/human_a.png" )
+        object.add_pattern( "image/human_b.png" )
         self.__obj_list.append( object )
 
         # 状態管理 - 移動量
