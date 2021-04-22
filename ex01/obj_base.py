@@ -13,8 +13,6 @@ class ObjectBase:
     pygame     = None
     fcur       = None
     fmax       = None
-    img_list   = []
-    img_lr     = []
     pos        = None
     block      = None
     dir_x      = None
@@ -71,13 +69,18 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     # 状態を更新
     #-------------------------------------------------------------------------------
-    def update( self, x ):
+    def update_move( self, x ):
 
         # 左右反転
         if self.dir_x == -1  and x == 1:
             self.dir_x = x
         elif self.dir_x == 1 and x == -1:
             self.dir_x = x
+
+    #-------------------------------------------------------------------------------
+    # 状態を更新
+    #-------------------------------------------------------------------------------
+    def update_animation( self ):
 
         self.fcur += 1
         if  self.fmax <= self.fcur:
@@ -101,7 +104,7 @@ class ObjectBase:
         x = self.pos[ 0 ] - view_pos[ 0 ] + ( screen.get_width() / self.block[ 0 ] ) / 2
         y = self.pos[ 1 ] - view_pos[ 1 ] + ( screen.get_height() / self.block[ 1 ] ) / 2
         pos_x = ( x * self.block[ 0 ] ) - ( image.get_width() / 2 )
-        pos_y = ( y * self.block[ 1 ] ) - ( self.block[ 0 ] / 2 ) - ( image.get_height() - self.block[ 0 ] )
+        pos_y = ( y * self.block[ 1 ] ) - ( self.block[ 1 ] / 2 ) - ( image.get_height() - self.block[ 1 ] )
         screen.blit( image, ( pos_x + move_x, pos_y + move_y ))
 
         return

@@ -14,12 +14,6 @@ import srf_wipe_btl
 import sts_move
 import sts_cursor
 
-SCREEN_X = 10
-SCREEN_Y = 8
-
-CELL_H = 64
-CELL_W = 64
-
 #-------------------------------------------------------------------------------
 # シーンクラス
 #-------------------------------------------------------------------------------
@@ -50,25 +44,27 @@ class SceneDungeon( scn_base.SceneBase ):
         self.scene  = scn_base.EnumScene.Dungeon
 
         # マップ初期化
-        self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
+        cell_wh = ( 64, 64 )
+        screen_wh = ( 10, 8 )
+        self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", screen_wh, cell_wh )
 
         # オブジェクト初期化：敵ミノタウロス
         pos = self.__map.get_enemy_pos()
-        object = obj_enemy_mino.ObjectEnemyMino( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
+        object = obj_enemy_mino.ObjectEnemyMino( self.__pygame, pos, cell_wh, 20 )
         object.add_pattern( "image/enemy_mino_a.png" )
         object.add_pattern( "image/enemy_mino_b.png" )
         self.__obj_list.append( object )
 
         # オブジェクト初期化：敵マミー
         pos = self.__map.get_enemy_pos()
-        object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
+        object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, cell_wh, 20 )
         object.add_pattern( "image/enemy_mummy_a.png" )
         object.add_pattern( "image/enemy_mummy_b.png" )
         self.__obj_list.append( object )
 
         # オブジェクト初期化：ドラゴン
         pos = self.__map.get_enemy_pos()
-        object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
+        object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, cell_wh, 20 )
         object.add_pattern( "image/enemy_dragon_a.png" )
         object.add_pattern( "image/enemy_dragon_b.png" )
         self.__obj_list.append( object )
@@ -76,7 +72,7 @@ class SceneDungeon( scn_base.SceneBase ):
         # オブジェクト初期化：プレイヤー
         pos = self.__map.get_player_pos()
         ( self.__px, self.__py ) = pos
-        object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, ( CELL_W, CELL_H ), 20 )
+        object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, cell_wh, 20 )
         object.add_pattern( "image/human_a.png" )
         object.add_pattern( "image/human_b.png" )
         self.__obj_list.append( object )
@@ -84,7 +80,7 @@ class SceneDungeon( scn_base.SceneBase ):
         # 状態管理 - 移動量
         self.__mv = sts_move.StsMove()
         self.__mv.set_destination( 16 )
-        self.__mv.set_block_size( CELL_H, CELL_W )
+        self.__mv.set_block_size( cell_wh )
 
         # 状態管理 - カーソル
         self.__cursor = sts_cursor.StsCursor()
@@ -147,7 +143,8 @@ class SceneDungeon( scn_base.SceneBase ):
             
             # オブジェクトアニメーション
             for object in self.__obj_list:
-                object.update( x )
+                object.update_animation()
+                object.update_move( x )
 
             # ワイプエフェクト
             self.__wipe.make_progress()

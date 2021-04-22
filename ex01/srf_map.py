@@ -18,10 +18,8 @@ g_img_wall  = None
 class SrfMap:
 
     __pygame         = None
-    __map_w          = None
-    __map_h          = None
-    __block_w        = None
-    __block_h        = None
+    __map_wh         = None
+    __block_wh       = None
     __player_pos     = None
     __enemy_pos_list = []
 
@@ -34,18 +32,16 @@ class SrfMap:
     # param(in) ブロックのサイズ(X方向ドット数)
     # param(in) ブロックのサイズ(Y方向ドット数)
     #-------------------------------------------------------------------------------
-    def __init__( self, pygame, filename, map_w, map_h, block_w, block_h ):
+    def __init__( self, pygame, filename, map_wh, block_wh ):
 
         global g_img_map
         global g_img_black
         global g_img_floor
         global g_img_wall
 
-        self.__pygame  = pygame
-        self.__map_w   = map_w
-        self.__map_h   = map_h
-        self.__block_w = block_w
-        self.__block_h = block_h
+        self.__pygame   = pygame
+        self.__map_wh   = map_wh
+        self.__block_wh = block_wh
 
         # マップ読み込み
         g_img_map = self.__pygame.image.load( filename )
@@ -68,12 +64,12 @@ class SrfMap:
     #-------------------------------------------------------------------------------
     # 画像表示（ブロック指定）
     #-------------------------------------------------------------------------------
-    def __put_block( self, screen, move, img, x, y ):
+    def __put_block( self, screen, move, img, pos ):
 
-        pos_x = ( x * self.__block_w ) - ( self.__block_w / 2 )
-        pos_y = ( y * self.__block_h ) - ( self.__block_h / 2 )
+        pos_x = ( self.__block_wh[ 0 ] * pos[ 0 ] ) - ( self.__block_wh[ 0 ] / 2 )
+        pos_y = ( self.__block_wh[ 1 ] * pos[ 1 ] ) - ( self.__block_wh[ 1 ] / 2 )
         move_x, move_y = move.get_move_offset()
-        screen.blit( img, ( pos_x + move_x, pos_y + move_y ))
+        screen.blit( img, ( pos_x + move_x, pos_y + move_y ) )
 
         return
 
@@ -87,8 +83,8 @@ class SrfMap:
     def draw( self, screen, view_pos, move ):
 
         rect = g_img_map.get_rect()
-        bx = int( self.__map_w / 2 ) # マップ→ウインドウの表示範囲の補正値(X方向)
-        by = int( self.__map_h / 2 ) # マップ→ウインドウの表示範囲の補正値(Y方向)
+        bx = int( self.__map_wh[ 0 ] / 2 ) # マップ→ウインドウの表示範囲の補正値(X方向)
+        by = int( self.__map_wh[ 1 ] / 2 ) # マップ→ウインドウの表示範囲の補正値(Y方向)
         sx = bx                      # マップの表示範囲の開始ブロック(X方向)
         sy = by                      # マップの表示範囲の開始ブロック(Y方向)
         ex = bx + 1                  # マップの表示範囲の終端ブロック(X方向)
@@ -114,8 +110,7 @@ class SrfMap:
                 img = g_img_black
                 if mx >= rect.left and mx < rect.right:
                     if my >= rect.top and my < rect.bottom:
-                        pos = ( mx, my )
-                        dotcol = g_img_map.get_at( pos )
+                        dotcol = g_img_map.get_at(( mx, my ))
                         if dotcol == DOTCOL_START_POS:
                             img = g_img_floor
                         elif dotcol == DOTCOL_FLOOR:
@@ -124,7 +119,7 @@ class SrfMap:
                             img = g_img_floor
                         elif dotcol == DOTCOL_WALL:
                             img = g_img_wall
-                self.__put_block( screen, move, img, ox + bx, oy + by )
+                self.__put_block( screen, move, img, ( ox + bx, oy + by ) )
 
         return
 
