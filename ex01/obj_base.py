@@ -15,7 +15,8 @@ class ObjectBase:
     fmax       = None
     pos        = None
     block      = None
-    dir_x      = None
+    dir        = None
+    move       = None
 
     #-------------------------------------------------------------------------------
     # Private
@@ -31,7 +32,8 @@ class ObjectBase:
         self.block    = block
         self.fmax     = fmax
         self.fcur     = 0
-        self.dir_x    = -1
+        self.dir      = ( -1, 0 )
+        self.move     = ( 0, 0 )
         self.img_list = []
         self.img_lr   = []
 
@@ -94,18 +96,20 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     def draw( self, screen, view_pos, move ):
 
-        if self.dir_x == -1:
+        if self.dir == ( -1, 0 ):
             # 左向き画像
             image = self.img_lr[ 0 ]
-        elif self.dir_x == 1:
+        elif self.dir == ( 1, 0 ):
             # 右向き画像
             image = self.img_lr[ 1 ]
 
-        move_x, move_y = move.get_move_offset()
-        x = self.pos[ 0 ] - view_pos[ 0 ] + ( screen.get_width() / self.block[ 0 ] ) / 2
-        y = self.pos[ 1 ] - view_pos[ 1 ] + ( screen.get_height() / self.block[ 1 ] ) / 2
+        self.move = move.get_move_offset()
+        x = ( screen.get_width() / self.block[ 0 ] ) / 2
+        y = ( screen.get_height() / self.block[ 1 ] ) / 2
+        x = self.pos[ 0 ] - view_pos[ 0 ] + x
+        y = self.pos[ 1 ] - view_pos[ 1 ] + y
         pos_x = ( x * self.block[ 0 ] ) - ( image.get_width() / 2 )
-        pos_y = ( y * self.block[ 1 ] ) - ( self.block[ 1 ] / 2 ) - ( image.get_height() - self.block[ 1 ] )
-        screen.blit( image, ( pos_x + move_x, pos_y + move_y ))
+        pos_y = ( y * self.block[ 1 ] ) - ( image.get_height() - self.block[ 1 ] ) - ( self.block[ 1 ] / 2 )
+        screen.blit( image, ( pos_x + self.move[ 0 ], pos_y + self.move[ 1 ] ))
 
         return

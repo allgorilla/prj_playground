@@ -126,8 +126,9 @@ class SrfMap:
     #-------------------------------------------------------------------------------
     # マップイメージの範囲チェック
     #-------------------------------------------------------------------------------
-    def __is_out_of_map( self, x, y ):
+    def __is_out_of_map( self, pos ):
 
+        ( x, y ) = pos
         rect = g_img_map.get_rect()
         if rect.top <= x and x < rect.bottom:
             if rect.left <= y and y < rect.right:
@@ -138,13 +139,13 @@ class SrfMap:
     #-------------------------------------------------------------------------------
     # ブロックの侵入可否チェック
     #-------------------------------------------------------------------------------
-    def can_walk( self, x, y ):
+    def can_walk( self, pos ):
 
         # マップイメージの範囲外に出る場合侵入不可
-        if True == self.__is_out_of_map( x, y ):
+        if True == self.__is_out_of_map( pos ):
             return False
 
-        elif DOTCOL_WALL != g_img_map.get_at(( x, y )):
+        elif DOTCOL_WALL != g_img_map.get_at( pos ):
             return True
 
         return False
