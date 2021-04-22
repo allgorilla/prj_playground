@@ -27,8 +27,7 @@ class SceneDungeon( scn_base.SceneBase ):
     __thread   = None
     __wipe     = None
     __mv       = None
-    __px       = None
-    __py       = None
+    __vpos     = None
     __map      = None
     __cursor   = None
     __cnt      = None
@@ -70,9 +69,8 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__obj_list.append( object )
 
         # オブジェクト初期化：プレイヤー
-        pos = self.__map.get_player_pos()
-        ( self.__px, self.__py ) = pos
-        object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, cell_wh, 20 )
+        self.__vpos = self.__map.get_player_pos()
+        object = obj_party_player.ObjectPartyPlayer( self.__pygame, self.__vpos, cell_wh, 20 )
         object.add_pattern( "image/human_a.png" )
         object.add_pattern( "image/human_b.png" )
         self.__obj_list.append( object )
@@ -129,22 +127,11 @@ class SceneDungeon( scn_base.SceneBase ):
             self.__pygame.event.pump()
             self.__pygame.time.wait( 16 )
 
-            # 移動オフセットの進捗更新
-            x, y = self.__cursor.get_direction()
-            if self.__mv.get_direction() != ( 0, 0 ):
-                self.__mv.make_progress()
-
-            else:
-                # ブロックの侵入可否チェック
-                if True == self.__map.can_walk( self.__px + x, self.__py + y ):
-                    self.__px += x 
-                    self.__py += y
-                    self.__mv.set_direction( x, y )
-            
             # オブジェクトアニメーション
             for object in self.__obj_list:
+                self.__vpos = object.update_input( self.__cursor, self.__map, self.__mv, self.__vpos )
                 object.update_animation()
-                object.update_move( x )
+                object.update_move( self.__map )
 
             # ワイプエフェクト
             self.__wipe.make_progress()
@@ -159,11 +146,11 @@ class SceneDungeon( scn_base.SceneBase ):
     def draw( self ):
 
         # 床と壁の表示
-        self.__map.draw( self.__screen, ( self.__px, self.__py ), self.__mv )
+        self.__map.draw( self.__screen, self.__vpos, self.__mv )
 
         # オブジェクトアニメーション
         for object in self.__obj_list:
-            object.draw( self.__screen, ( self.__px, self.__py ), self.__mv )
+            object.draw( self.__screen, self.__vpos, self.__mv )
 
         # ワイプエフェクト
         self.__wipe.draw( self.__screen )
