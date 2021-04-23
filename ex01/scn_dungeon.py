@@ -98,6 +98,7 @@ class SceneDungeon( scn_base.SceneBase ):
 
         else:
             self.__thread = threading.Thread( target = self.__update )
+            self.__thread.setDaemon( True )
             self.__thread.start()
             return True
 
