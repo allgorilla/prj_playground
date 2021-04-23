@@ -1,6 +1,7 @@
 # coding: utf-8
 from pygame.locals import *
 import pygame
+import sts_move
 
 #-------------------------------------------------------------------------------
 # マップ上のオブジェクトのベースクラス
@@ -10,13 +11,6 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     # Public
     #-------------------------------------------------------------------------------
-    pygame     = None
-    fcur       = None
-    fmax       = None
-    pos        = None
-    block      = None
-    dir        = None
-    move       = None
 
     #-------------------------------------------------------------------------------
     # Private
@@ -25,18 +19,24 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     # コンストラクタ
     #-------------------------------------------------------------------------------
-    def __init__( self, pygame, pos, block, fmax ):
+    def __init__( self, pygame, pos, grid_wh, fmax ):
 
         self.pygame   = pygame
-        self.pos      = pos
-        self.block    = block
+        self.loc_pos  = pos
+        self.loc_ofs  = ( 0, 0 )
+        self.grid_wh  = grid_wh
         self.fmax     = fmax
         self.fcur     = 0
         self.dir      = ( -1, 0 )
-        self.move     = ( 0, 0 )
+        self.view_pos = ( 0, 0 )
+        self.view_ofs = ( 0, 0 )
         self.img_list = []
         self.img_lr   = []
 
+        # 状態管理 - 移動量
+        self.move = sts_move.StsMove()
+        self.move.set_destination( 16 )
+        self.move.set_block_size( grid_wh )
         return
 
     #-------------------------------------------------------------------------------
@@ -71,8 +71,16 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     # 状態を更新
     #-------------------------------------------------------------------------------
-    def update_input( self, cursor, map, move, view ):
-        return view
+    def update_think( self, cursor, map, obj_list ):
+
+        if self.move.get_direction() != ( 0, 0 ):
+            self.move.make_progress()
+
+        self.view_pos = obj_list[ 0 ].loc_pos
+        self.view_ofs = obj_list[ 0 ].move.get_move_offset()
+        self.loc_ofs  = self.move.get_move_offset()
+
+        return
 
     #-------------------------------------------------------------------------------
     # 状態を更新
@@ -94,7 +102,7 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     # プレイヤーを描画
     #-------------------------------------------------------------------------------
-    def draw( self, screen, view_pos, move ):
+    def blit( self, screen, pos ):
 
         if self.dir == ( -1, 0 ):
             # 左向き画像
@@ -103,13 +111,23 @@ class ObjectBase:
             # 右向き画像
             image = self.img_lr[ 1 ]
 
-        self.move = move.get_move_offset()
-        x = ( screen.get_width() / self.block[ 0 ] ) / 2
-        y = ( screen.get_height() / self.block[ 1 ] ) / 2
-        x = self.pos[ 0 ] - view_pos[ 0 ] + x
-        y = self.pos[ 1 ] - view_pos[ 1 ] + y
-        pos_x = ( x * self.block[ 0 ] ) - ( image.get_width() / 2 )
-        pos_y = ( y * self.block[ 1 ] ) - ( image.get_height() - self.block[ 1 ] ) - ( self.block[ 1 ] / 2 )
-        screen.blit( image, ( pos_x + self.move[ 0 ], pos_y + self.move[ 1 ] ))
+        ( vx, vy ) = self.view_ofs
+        ( mx, my ) = self.loc_ofs
+        x = ( pos[ 0 ] * self.grid_wh[ 0 ] ) + vx - mx
+        y = ( pos[ 1 ] * self.grid_wh[ 1 ] ) + vy - my
+        x = x  - ( image.get_width() / 2 )
+        y = y  - ( image.get_height() - self.grid_wh[ 1 ] ) - ( self.grid_wh[ 1 ] / 2 )
+        screen.blit( image, ( x, y ))
+
+    #-------------------------------------------------------------------------------
+    # プレイヤーを描画
+    #-------------------------------------------------------------------------------
+    def draw( self, screen ):
+
+        x = ( screen.get_width() / self.grid_wh[ 0 ] ) / 2
+        y = ( screen.get_height() / self.grid_wh[ 1 ] ) / 2
+        x = x + self.loc_pos[ 0 ] - self.view_pos[ 0 ]
+        y = y + self.loc_pos[ 1 ] - self.view_pos[ 1 ]
+        self.blit( screen, ( x, y ))
 
         return

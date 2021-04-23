@@ -11,7 +11,6 @@ import obj_party_player
 import obj_enemy_mino
 import obj_enemy_mummy
 import srf_wipe_btl
-import sts_move
 import sts_cursor
 
 #-------------------------------------------------------------------------------
@@ -47,6 +46,13 @@ class SceneDungeon( scn_base.SceneBase ):
         screen_wh = ( 10, 8 )
         self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", screen_wh, cell_wh )
 
+        # オブジェクト初期化：プレイヤー
+        self.__vpos = self.__map.get_player_pos()
+        object = obj_party_player.ObjectPartyPlayer( self.__pygame, self.__vpos, cell_wh, 20 )
+        object.add_pattern( "image/human_a.png" )
+        object.add_pattern( "image/human_b.png" )
+        self.__obj_list.append( object )
+
         # オブジェクト初期化：敵ミノタウロス
         pos = self.__map.get_enemy_pos()
         object = obj_enemy_mino.ObjectEnemyMino( self.__pygame, pos, cell_wh, 20 )
@@ -61,24 +67,12 @@ class SceneDungeon( scn_base.SceneBase ):
         object.add_pattern( "image/enemy_mummy_b.png" )
         self.__obj_list.append( object )
 
-        # オブジェクト初期化：ドラゴン
+        # オブジェクト初期化：敵ドラゴン
         pos = self.__map.get_enemy_pos()
         object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, cell_wh, 20 )
         object.add_pattern( "image/enemy_dragon_a.png" )
         object.add_pattern( "image/enemy_dragon_b.png" )
         self.__obj_list.append( object )
-
-        # オブジェクト初期化：プレイヤー
-        self.__vpos = self.__map.get_player_pos()
-        object = obj_party_player.ObjectPartyPlayer( self.__pygame, self.__vpos, cell_wh, 20 )
-        object.add_pattern( "image/human_a.png" )
-        object.add_pattern( "image/human_b.png" )
-        self.__obj_list.append( object )
-
-        # 状態管理 - 移動量
-        self.__mv = sts_move.StsMove()
-        self.__mv.set_destination( 16 )
-        self.__mv.set_block_size( cell_wh )
 
         # 状態管理 - カーソル
         self.__cursor = sts_cursor.StsCursor()
@@ -129,7 +123,7 @@ class SceneDungeon( scn_base.SceneBase ):
 
             # オブジェクトアニメーション
             for object in self.__obj_list:
-                self.__vpos = object.update_input( self.__cursor, self.__map, self.__mv, self.__vpos )
+                object.update_think( self.__cursor, self.__map, self.__obj_list )
                 object.update_animation()
                 object.update_move( self.__map )
 
@@ -146,11 +140,11 @@ class SceneDungeon( scn_base.SceneBase ):
     def draw( self ):
 
         # 床と壁の表示
-        self.__map.draw( self.__screen, self.__vpos, self.__mv )
+        self.__map.draw( self.__screen, self.__obj_list[ 0 ].loc_pos, self.__obj_list[ 0 ].move )
 
         # オブジェクトアニメーション
         for object in self.__obj_list:
-            object.draw( self.__screen, self.__vpos, self.__mv )
+            object.draw( self.__screen )
 
         # ワイプエフェクト
         self.__wipe.draw( self.__screen )
