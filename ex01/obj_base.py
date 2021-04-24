@@ -114,14 +114,14 @@ class ObjectBase:
     def update_think( self, cursor, map, obj_list ):
 
         dir = self.get_direction( cursor )
-        if self.move.get_direction() != ( 0, 0 ):
-            self.move.make_progress()
-        else:
+        if self.move.is_stop():
             # ブロックの侵入可否チェック
             pos = ( self.loc_pos[ 0 ] + dir[ 0 ], self.loc_pos[ 1 ] + dir[ 1 ] )
             if True == map.can_walk( pos ):
                 self.loc_pos = pos
-                self.move.set_direction( dir )            
+                self.move.set_direction( dir )
+        else:
+            self.move.make_progress()
 
         self.view_pos = obj_list[ 0 ].loc_pos
         self.view_ofs = obj_list[ 0 ].move.get_move_offset()

@@ -139,19 +139,29 @@ class SceneDungeon( scn_base.SceneBase ):
         for object in self.__obj_list:
             object.set_blit_pos( self.__screen )
 
-        # 全オブジェクトのY座標リストを作成
-        y_list = []
+        # 全オブジェクトの優先度リストを作成
+        pri_list = []
         for object in self.__obj_list:
-            y_list.append( object.blit_pos[ 1 ] )
+            # Y座標は大きいほど優先
+            y = object.blit_pos[ 1 ]
+            abs_x = abs( self.__obj_list[ 0 ].blit_pos[ 0 ] - object.blit_pos[ 0 ] )
+            # X座標はプレイヤーが移動中か停止中かで優先を変更する
+            if self.__obj_list[ 0 ].move.is_stop():
+                # 中心に遠いほど優先
+                x = abs_x
+            else:
+                # 中心に近いほど優先
+                x = 1000 - abs_x
+            pri_list.append( y * 1000 + x )
 
-        # Y座標リストから表示順リストを作成
+        # 優先度リストから表示順リストを作成
         seq_list = []
-        while len( seq_list ) != len( y_list ):
-            # Y座標リストから値の小さい順にindexを保存する
-            y_min = min( y_list )
-            index = y_list.index( y_min )
+        while len( seq_list ) != len( pri_list ):
+            # 優先度リストから値の小さい順にindexを保存する
+            y_min = min( pri_list )
+            index = pri_list.index( y_min )
             seq_list.append( index )
-            y_list[ index ] = 0xFFFFFFFF
+            pri_list[ index ] = 0xFFFFFFFF
 
         # 表示順リストに従ってオブジェクトを描画
         for index in seq_list:

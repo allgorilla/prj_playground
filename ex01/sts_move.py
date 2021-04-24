@@ -60,5 +60,11 @@ class StsMove:
     def get_direction( self ):
         return self.direction
 
-
-
+    #-------------------------------------------------------------------------------
+    # 移動量のオフセット値を取得する
+    #-------------------------------------------------------------------------------
+    def is_stop( self ):
+        if self.direction == ( 0, 0 ):
+            return True
+        else:
+            return False
