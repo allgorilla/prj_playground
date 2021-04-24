@@ -1,6 +1,8 @@
 # coding: utf-8
 from pygame.locals import *
 import pygame
+import random
+
 import sts_move
 
 #-------------------------------------------------------------------------------
@@ -19,14 +21,18 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     # コンストラクタ
     #-------------------------------------------------------------------------------
-    def __init__( self, pygame, pos, grid_wh, fmax ):
+    def __init__( self, pygame, pos, grid_wh, acnt, tcnt ):
 
         self.pygame   = pygame
         self.loc_pos  = pos
         self.loc_ofs  = ( 0, 0 )
         self.grid_wh  = grid_wh
-        self.fmax     = fmax
-        self.fcur     = 0
+
+        self.acnt_cur = 0
+        self.acnt_max = acnt
+        self.tcnt_cur = 0
+        self.tcnt_max = tcnt
+
         self.dir      = ( -1, 0 )
         self.view_pos = ( 0, 0 )
         self.view_ofs = ( 0, 0 )
@@ -36,7 +42,7 @@ class ObjectBase:
         # 状態管理 - 移動量
         self.move = sts_move.StsMove()
         self.move.set_destination( 16 )
-        self.move.set_block_size( grid_wh )
+        self.move.set_grid_size( grid_wh )
         return
 
     #-------------------------------------------------------------------------------
@@ -69,16 +75,62 @@ class ObjectBase:
             self.img_lr = self.img_list.pop( 0 )
 
     #-------------------------------------------------------------------------------
+    # ランダムな方向を得る
+    #-------------------------------------------------------------------------------
+    def get_random_direction( self ):
+        val = random.randint( 1, 4 )
+        if val == 1:
+            dir = ( -1, 0 )
+        elif val == 2:
+            dir = ( 1, 0 )
+        elif val == 3:
+            dir = ( 0, -1 )
+        elif val == 4:
+            dir = ( 0, 1 )
+        else:
+            dir = ( 0, 0 )
+
+        return dir
+
+    #-------------------------------------------------------------------------------
+    # 進行方向を取得する
+    #-------------------------------------------------------------------------------
+    def get_direction( self, cursor ):
+
+        self.tcnt_cur += 1
+        if  self.tcnt_max <= self.tcnt_cur:
+            dir = self.get_random_direction()
+            self.tcnt_cur = 0
+        else:
+            dir = ( 0, 0 )
+
+        return dir
+
+
+    #-------------------------------------------------------------------------------
     # 状態を更新
     #-------------------------------------------------------------------------------
     def update_think( self, cursor, map, obj_list ):
 
+        dir = self.get_direction( cursor )
         if self.move.get_direction() != ( 0, 0 ):
             self.move.make_progress()
+        else:
+            # ブロックの侵入可否チェック
+            pos = ( self.loc_pos[ 0 ] + dir[ 0 ], self.loc_pos[ 1 ] + dir[ 1 ] )
+            if True == map.can_walk( pos ):
+                self.loc_pos = pos
+                self.move.set_direction( dir )            
 
         self.view_pos = obj_list[ 0 ].loc_pos
         self.view_ofs = obj_list[ 0 ].move.get_move_offset()
         self.loc_ofs  = self.move.get_move_offset()
+
+        # 左右反転
+        if self.dir == ( -1, 0 )  and dir == ( 1, 0 ):
+            self.dir = dir
+        elif self.dir == ( 1, 0 ) and dir == ( -1, 0 ):
+            self.dir = dir
 
         return
 
@@ -87,11 +139,11 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     def update_animation( self ):
 
-        self.fcur += 1
-        if  self.fmax <= self.fcur:
+        self.acnt_cur += 1
+        if  self.acnt_max <= self.acnt_cur:
             self.img_list.append( self.img_lr )
             self.img_lr = self.img_list.pop( 0 )
-            self.fcur = 0
+            self.acnt_cur = 0
 
     #-------------------------------------------------------------------------------
     # 状態を更新
@@ -115,8 +167,8 @@ class ObjectBase:
         ( mx, my ) = self.loc_ofs
         x = ( pos[ 0 ] * self.grid_wh[ 0 ] ) + vx - mx
         y = ( pos[ 1 ] * self.grid_wh[ 1 ] ) + vy - my
-        x = x  - ( image.get_width() / 2 )
-        y = y  - ( image.get_height() - self.grid_wh[ 1 ] ) - ( self.grid_wh[ 1 ] / 2 )
+        x = x - ( image.get_width() / 2 )
+        y = y - ( image.get_height() - self.grid_wh[ 1 ] ) - ( self.grid_wh[ 1 ] / 2 )
         screen.blit( image, ( x, y ))
 
     #-------------------------------------------------------------------------------

@@ -8,8 +8,8 @@ class StsMove:
     destination = 0
     progress    = 0
     direction   = ( 0, 0 )
-    block_w     = 0
-    block_h     = 0
+    grid_w      = 0
+    grid_h      = 0
 
     #-------------------------------------------------------------------------------
     # 目標値を設定
@@ -20,8 +20,8 @@ class StsMove:
     #-------------------------------------------------------------------------------
     # ブロックのサイズを設定
     #-------------------------------------------------------------------------------
-    def set_block_size( self, wh ):
-        ( self.block_w, self.block_h ) = wh
+    def set_grid_size( self, wh ):
+        ( self.grid_w, self.grid_h ) = wh
         return
     #-------------------------------------------------------------------------------
     # 方向を設定
@@ -46,13 +46,13 @@ class StsMove:
         x = 0
         y = 0
         if self.direction == ( 0, -1 ):
-            y -= int( float( self.block_h ) * ratio )
+            y -= int( float( self.grid_h ) * ratio )
         elif self.direction == ( 0, +1 ):
-            y += int( float( self.block_h ) * ratio )
+            y += int( float( self.grid_h ) * ratio )
         elif self.direction == ( -1, 0 ):
-            x -= int( float( self.block_w ) * ratio )
+            x -= int( float( self.grid_w ) * ratio )
         elif self.direction == ( +1, 0 ):
-            x += int( float( self.block_w ) * ratio )
+            x += int( float( self.grid_w ) * ratio )
         return x, y
     #-------------------------------------------------------------------------------
     # 移動量のオフセット値を取得する

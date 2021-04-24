@@ -25,8 +25,6 @@ class SceneDungeon( scn_base.SceneBase ):
     __screen   = None
     __thread   = None
     __wipe     = None
-    __mv       = None
-    __vpos     = None
     __map      = None
     __cursor   = None
     __cnt      = None
@@ -46,33 +44,11 @@ class SceneDungeon( scn_base.SceneBase ):
         screen_wh = ( 10, 8 )
         self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", screen_wh, cell_wh )
 
-        # オブジェクト初期化：プレイヤー
-        self.__vpos = self.__map.get_player_pos()
-        object = obj_party_player.ObjectPartyPlayer( self.__pygame, self.__vpos, cell_wh, 20 )
-        object.add_pattern( "image/human_a.png" )
-        object.add_pattern( "image/human_b.png" )
-        self.__obj_list.append( object )
-
-        # オブジェクト初期化：敵ミノタウロス
-        pos = self.__map.get_enemy_pos()
-        object = obj_enemy_mino.ObjectEnemyMino( self.__pygame, pos, cell_wh, 20 )
-        object.add_pattern( "image/enemy_mino_a.png" )
-        object.add_pattern( "image/enemy_mino_b.png" )
-        self.__obj_list.append( object )
-
-        # オブジェクト初期化：敵マミー
-        pos = self.__map.get_enemy_pos()
-        object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, cell_wh, 20 )
-        object.add_pattern( "image/enemy_mummy_a.png" )
-        object.add_pattern( "image/enemy_mummy_b.png" )
-        self.__obj_list.append( object )
-
-        # オブジェクト初期化：敵ドラゴン
-        pos = self.__map.get_enemy_pos()
-        object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, cell_wh, 20 )
-        object.add_pattern( "image/enemy_dragon_a.png" )
-        object.add_pattern( "image/enemy_dragon_b.png" )
-        self.__obj_list.append( object )
+        # オブジェクト初期化
+        self.add_enemy( "image/human", cell_wh, 20, 100 )
+        self.add_enemy( "image/enemy_mino", cell_wh, 20, 100 )
+        self.add_enemy( "image/enemy_mummy", cell_wh, 40, 100 )
+        self.add_enemy( "image/enemy_dragon", cell_wh, 20, 50 )
 
         # 状態管理 - カーソル
         self.__cursor = sts_cursor.StsCursor()
@@ -81,6 +57,22 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, 8 )
 
         return
+    #-------------------------------------------------------------------------------
+    # 敵を追加するサブルーチン
+    #-------------------------------------------------------------------------------
+    def add_enemy( self, file, cell_wh, acnt, tcnt ):
+
+        if 0 == len( self.__obj_list ):
+            pos = self.__map.get_player_pos()
+            object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, cell_wh, acnt, tcnt )
+        else:
+            pos = self.__map.get_enemy_pos()
+            object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, cell_wh, acnt, tcnt )
+
+        object.add_pattern( file + "_a.png" )
+        object.add_pattern( file + "_b.png" )
+        self.__obj_list.append( object )
+
     #-------------------------------------------------------------------------------
     # 周期処理開始
     #-------------------------------------------------------------------------------
