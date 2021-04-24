@@ -8,8 +8,8 @@ class StsMove:
     destination = 0
     progress    = 0
     direction   = ( 0, 0 )
-    block_w     = 0
-    block_h     = 0
+    grid_w      = 0
+    grid_h      = 0
 
     #-------------------------------------------------------------------------------
     # 目標値を設定
@@ -20,20 +20,19 @@ class StsMove:
     #-------------------------------------------------------------------------------
     # ブロックのサイズを設定
     #-------------------------------------------------------------------------------
-    def set_block_size( self, width, height ):
-        self.block_w = width
-        self.block_h = height
+    def set_grid_size( self, wh ):
+        ( self.grid_w, self.grid_h ) = wh
         return
     #-------------------------------------------------------------------------------
     # 方向を設定
     #-------------------------------------------------------------------------------
-    def set_direction( self, x, y ):
-        self.direction = ( x, y )
+    def set_direction( self, pos ):
+        self.direction = pos
         return
     #-------------------------------------------------------------------------------
     # 進捗値を更新
     #-------------------------------------------------------------------------------
-    def make_progress(self):
+    def make_progress( self ):
         self.progress += 1
         if self.progress >= self.destination:
             self.direction = ( 0, 0 )
@@ -42,24 +41,30 @@ class StsMove:
     #-------------------------------------------------------------------------------
     # 移動量のオフセット値を取得する
     #-------------------------------------------------------------------------------
-    def get_move_offset(self):
+    def get_move_offset( self ):
         ratio = 1 - float( self.progress / self.destination )
         x = 0
         y = 0
         if self.direction == ( 0, -1 ):
-            y -= int( float( self.block_h ) * ratio )
+            y -= int( float( self.grid_h ) * ratio )
         elif self.direction == ( 0, +1 ):
-            y += int( float( self.block_h ) * ratio )
+            y += int( float( self.grid_h ) * ratio )
         elif self.direction == ( -1, 0 ):
-            x -= int( float( self.block_w ) * ratio )
+            x -= int( float( self.grid_w ) * ratio )
         elif self.direction == ( +1, 0 ):
-            x += int( float( self.block_w ) * ratio )
+            x += int( float( self.grid_w ) * ratio )
         return x, y
     #-------------------------------------------------------------------------------
     # 移動量のオフセット値を取得する
     #-------------------------------------------------------------------------------
-    def get_direction(self):
+    def get_direction( self ):
         return self.direction
 
-
-
+    #-------------------------------------------------------------------------------
+    # 移動量のオフセット値を取得する
+    #-------------------------------------------------------------------------------
+    def is_stop( self ):
+        if self.direction == ( 0, 0 ):
+            return True
+        else:
+            return False

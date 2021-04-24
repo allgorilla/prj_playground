@@ -7,26 +7,11 @@ import threading
 
 import scn_base
 import srf_map
-import srf_chr
+import obj_party_player
+import obj_enemy_mino
+import obj_enemy_mummy
 import srf_wipe_btl
-import sts_move
 import sts_cursor
-
-SCREEN_X = 10
-SCREEN_Y = 8
-
-CELL_H = 64
-CELL_W = 64
-
-#-------------------------------------------------------------------------------
-# プレイヤー表示（ブロック指定）
-#-------------------------------------------------------------------------------
-def put_player( screen, img, x, y ):
-
-    pos_x = ( x * CELL_W ) - ( PLAYER_W/2 )
-    pos_y = ( y * CELL_H ) - ( CELL_H/2 ) - ( PLAYER_H - CELL_H )
-    screen.blit( img, ( pos_x, pos_y ))
-    return
 
 #-------------------------------------------------------------------------------
 # シーンクラス
@@ -36,17 +21,14 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     # メンバ（Private）
     #-------------------------------------------------------------------------------
-    __pygame  = None
-    __screen  = None
-    __thread  = None
-    __wipe    = None
-    __mv      = None
-    __px      = None
-    __py      = None
-    __chara   = None
-    __map     = None
-    __cursor  = None
-    __cnt     = None
+    __pygame   = None
+    __screen   = None
+    __thread   = None
+    __wipe     = None
+    __map      = None
+    __cursor   = None
+    __cnt      = None
+    __obj_list = []
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -57,33 +39,40 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__screen = screen
         self.scene  = scn_base.EnumScene.Dungeon
 
-        # プレイヤー初期化
-        self.__chara = srf_chr.SrfCharacter( self.__pygame, self.__screen, 20, CELL_W, CELL_H )
-        self.__chara.add_pattern( "image/human_a.bmp" )
-        self.__chara.add_pattern( "image/human_b.bmp" )
-
         # マップ初期化
-        self.__map = srf_map.SrfMap( self.__pygame, self.__screen, "image/map.bmp", SCREEN_X, SCREEN_Y, CELL_H, CELL_W )
+        cell_wh = ( 64, 64 )
+        screen_wh = ( 10, 8 )
+        self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", screen_wh, cell_wh )
 
-        find, self.__px, self.__py = self.__map.get_start_pos()
-        if find == False:
-            print("")
-            print("【異常終了】マップにスタート地点が見つかりません")
-            print("")
-            return
-
-        # 状態管理 - 移動量
-        self.__mv = sts_move.StsMove()
-        self.__mv.set_destination( 16 )
-        self.__mv.set_block_size( CELL_H, CELL_W )
+        # オブジェクト初期化
+        self.add_object( "image/human", cell_wh, 20, 100 )
+        self.add_object( "image/enemy_mino", cell_wh, 10, 20 )
+        self.add_object( "image/enemy_mummy", cell_wh, 40, 100 )
+        self.add_object( "image/enemy_dragon", cell_wh, 20, 50 )
 
         # 状態管理 - カーソル
         self.__cursor = sts_cursor.StsCursor()
 
         # ワイプエフェクト
-        self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, self.__screen, 8 )
+        self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, 8 )
 
         return
+    #-------------------------------------------------------------------------------
+    # 敵を追加するサブルーチン
+    #-------------------------------------------------------------------------------
+    def add_object( self, file, cell_wh, acnt, tcnt ):
+
+        if 0 == len( self.__obj_list ):
+            pos = self.__map.get_player_pos()
+            object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, cell_wh, acnt, tcnt )
+        else:
+            pos = self.__map.get_enemy_pos()
+            object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, cell_wh, acnt, tcnt )
+
+        object.add_pattern( file + "_a.png" )
+        object.add_pattern( file + "_b.png" )
+        self.__obj_list.append( object )
+
     #-------------------------------------------------------------------------------
     # 周期処理開始
     #-------------------------------------------------------------------------------
@@ -101,6 +90,7 @@ class SceneDungeon( scn_base.SceneBase ):
 
         else:
             self.__thread = threading.Thread( target = self.__update )
+            self.__thread.setDaemon( True )
             self.__thread.start()
             return True
 
@@ -124,20 +114,11 @@ class SceneDungeon( scn_base.SceneBase ):
             self.__pygame.event.pump()
             self.__pygame.time.wait( 16 )
 
-            # 移動オフセットの進捗更新
-            x, y = self.__cursor.get_direction()
-            if self.__mv.get_direction() != ( 0, 0 ):
-                self.__mv.make_progress()
-
-            else:
-                # ブロックの侵入可否チェック
-                if True == self.__map.can_walk( self.__px + x, self.__py + y ):
-                    self.__px += x 
-                    self.__py += y
-                    self.__mv.set_direction( x, y )
-            
-            # プレイヤーアニメーション
-            self.__chara.update( x )
+            # オブジェクトアニメーション
+            for object in self.__obj_list:
+                object.update_think( self.__cursor, self.__map, self.__obj_list )
+                object.update_animation()
+                object.update_move( self.__map )
 
             # ワイプエフェクト
             self.__wipe.make_progress()
@@ -152,13 +133,42 @@ class SceneDungeon( scn_base.SceneBase ):
     def draw( self ):
 
         # 床と壁の表示
-        self.__map.draw( self.__mv, self.__px, self.__py )
+        self.__map.draw( self.__screen, self.__obj_list[ 0 ].loc_pos, self.__obj_list[ 0 ].move )
 
-        # プレイヤーの表示
-        self.__chara.draw( SCREEN_X / 2, SCREEN_Y / 2 )
+        # オブジェクトアニメーション
+        for object in self.__obj_list:
+            object.set_blit_pos( self.__screen )
+
+        # 全オブジェクトの優先度リストを作成
+        pri_list = []
+        for object in self.__obj_list:
+            # Y座標は大きいほど優先
+            y = object.blit_pos[ 1 ]
+            abs_x = abs( self.__obj_list[ 0 ].blit_pos[ 0 ] - object.blit_pos[ 0 ] )
+            # X座標はプレイヤーが移動中か停止中かで優先を変更する
+            if self.__obj_list[ 0 ].move.is_stop():
+                # 中心に遠いほど優先
+                x = abs_x
+            else:
+                # 中心に近いほど優先
+                x = 1000 - abs_x
+            pri_list.append( y * 1000 + x )
+
+        # 優先度リストから表示順リストを作成
+        seq_list = []
+        while len( seq_list ) != len( pri_list ):
+            # 優先度リストから値の小さい順にindexを保存する
+            y_min = min( pri_list )
+            index = pri_list.index( y_min )
+            seq_list.append( index )
+            pri_list[ index ] = 0xFFFFFFFF
+
+        # 表示順リストに従ってオブジェクトを描画
+        for index in seq_list:
+            self.__obj_list[ index ].draw( self.__screen )
 
         # ワイプエフェクト
-        self.__wipe.draw()
+        self.__wipe.draw( self.__screen )
 
         return
 

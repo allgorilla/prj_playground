@@ -35,7 +35,7 @@ class SceneBattle( scn_base.SceneBase ):
         self.__image = self.__pygame.image.load( "image/battle.png" ).convert()
 
         # ワイプエフェクト
-        self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, self.__screen, 8 )
+        self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, 8 )
 
         return
 
@@ -94,7 +94,7 @@ class SceneBattle( scn_base.SceneBase ):
         self.__screen.blit( self.__image, ( 0, 0 ))
 
         # ワイプエフェクト
-        self.__wipe.draw()
+        self.__wipe.draw( self.__screen )
 
     #-------------------------------------------------------------------------------
     # キー入力

@@ -57,16 +57,16 @@ class StsCursor:
     def get_direction( self ):
 
         if 0 == len( self.__key_list ):
-            return 0, 0
+            return ( 0, 0 )
 
         key = self.__key_list[ -1 ]
         if key == K_UP:
-            return 0, -1
+            return ( 0, -1 )
         elif key == K_DOWN:
-            return 0, +1
+            return ( 0, +1 )
         elif key == K_LEFT:
-            return -1, 0
+            return ( -1, 0 )
         elif key == K_RIGHT:
-            return +1, 0
+            return ( +1, 0 )
 
-        return 0, 0
+        return ( 0, 0 )
