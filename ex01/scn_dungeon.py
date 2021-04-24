@@ -45,10 +45,10 @@ class SceneDungeon( scn_base.SceneBase ):
         self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", screen_wh, cell_wh )
 
         # オブジェクト初期化
-        self.add_enemy( "image/human", cell_wh, 20, 100 )
-        self.add_enemy( "image/enemy_mino", cell_wh, 20, 100 )
-        self.add_enemy( "image/enemy_mummy", cell_wh, 40, 100 )
-        self.add_enemy( "image/enemy_dragon", cell_wh, 20, 50 )
+        self.add_object( "image/human", cell_wh, 20, 100 )
+        self.add_object( "image/enemy_mino", cell_wh, 10, 20 )
+        self.add_object( "image/enemy_mummy", cell_wh, 40, 100 )
+        self.add_object( "image/enemy_dragon", cell_wh, 20, 50 )
 
         # 状態管理 - カーソル
         self.__cursor = sts_cursor.StsCursor()
@@ -60,7 +60,7 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     # 敵を追加するサブルーチン
     #-------------------------------------------------------------------------------
-    def add_enemy( self, file, cell_wh, acnt, tcnt ):
+    def add_object( self, file, cell_wh, acnt, tcnt ):
 
         if 0 == len( self.__obj_list ):
             pos = self.__map.get_player_pos()
@@ -137,7 +137,25 @@ class SceneDungeon( scn_base.SceneBase ):
 
         # オブジェクトアニメーション
         for object in self.__obj_list:
-            object.draw( self.__screen )
+            object.set_blit_pos( self.__screen )
+
+        # 全オブジェクトのY座標リストを作成
+        y_list = []
+        for object in self.__obj_list:
+            y_list.append( object.blit_pos[ 1 ] )
+
+        # Y座標リストから表示順リストを作成
+        seq_list = []
+        while len( seq_list ) != len( y_list ):
+            # Y座標リストから値の小さい順にindexを保存する
+            y_min = min( y_list )
+            index = y_list.index( y_min )
+            seq_list.append( index )
+            y_list[ index ] = 0xFFFFFFFF
+
+        # 表示順リストに従ってオブジェクトを描画
+        for index in seq_list:
+            self.__obj_list[ index ].draw( self.__screen )
 
         # ワイプエフェクト
         self.__wipe.draw( self.__screen )

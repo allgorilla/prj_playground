@@ -36,6 +36,7 @@ class ObjectBase:
         self.dir      = ( -1, 0 )
         self.view_pos = ( 0, 0 )
         self.view_ofs = ( 0, 0 )
+        self.blit_pos = ( 0, 0 )
         self.img_list = []
         self.img_lr   = []
 
@@ -154,7 +155,23 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     # プレイヤーを描画
     #-------------------------------------------------------------------------------
-    def blit( self, screen, pos ):
+    def set_blit_pos( self, screen ):
+
+        x = ( screen.get_width() / self.grid_wh[ 0 ] ) / 2
+        y = ( screen.get_height() / self.grid_wh[ 1 ] ) / 2
+        x = x + self.loc_pos[ 0 ] - self.view_pos[ 0 ]
+        y = y + self.loc_pos[ 1 ] - self.view_pos[ 1 ]
+
+        ( vx, vy ) = self.view_ofs
+        ( mx, my ) = self.loc_ofs
+        x = ( x * self.grid_wh[ 0 ] ) + vx - mx
+        y = ( y * self.grid_wh[ 1 ] ) + vy - my
+        self.blit_pos = ( x, y )
+
+    #-------------------------------------------------------------------------------
+    # プレイヤーを描画
+    #-------------------------------------------------------------------------------
+    def draw( self, screen ):
 
         if self.dir == ( -1, 0 ):
             # 左向き画像
@@ -163,23 +180,9 @@ class ObjectBase:
             # 右向き画像
             image = self.img_lr[ 1 ]
 
-        ( vx, vy ) = self.view_ofs
-        ( mx, my ) = self.loc_ofs
-        x = ( pos[ 0 ] * self.grid_wh[ 0 ] ) + vx - mx
-        y = ( pos[ 1 ] * self.grid_wh[ 1 ] ) + vy - my
+        ( x, y ) = self.blit_pos
         x = x - ( image.get_width() / 2 )
         y = y - ( image.get_height() - self.grid_wh[ 1 ] ) - ( self.grid_wh[ 1 ] / 2 )
         screen.blit( image, ( x, y ))
-
-    #-------------------------------------------------------------------------------
-    # プレイヤーを描画
-    #-------------------------------------------------------------------------------
-    def draw( self, screen ):
-
-        x = ( screen.get_width() / self.grid_wh[ 0 ] ) / 2
-        y = ( screen.get_height() / self.grid_wh[ 1 ] ) / 2
-        x = x + self.loc_pos[ 0 ] - self.view_pos[ 0 ]
-        y = y + self.loc_pos[ 1 ] - self.view_pos[ 1 ]
-        self.blit( screen, ( x, y ))
 
         return
