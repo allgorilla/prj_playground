@@ -33,7 +33,7 @@ class ObjectBase:
         self.tcnt_cur = 0
         self.tcnt_max = tcnt
 
-        self.dir      = ( -1, 0 )
+        self.imgdir      = ( -1, 0 )
         self.view_pos = ( 0, 0 )
         self.view_ofs = ( 0, 0 )
         self.blit_pos = ( 0, 0 )
@@ -107,13 +107,11 @@ class ObjectBase:
 
         return dir
 
-
     #-------------------------------------------------------------------------------
-    # 状態を更新
+    # 座標を更新
     #-------------------------------------------------------------------------------
-    def update_think( self, cursor, map, obj_list ):
+    def update_common( self, dir, map, obj_list ):
 
-        dir = self.get_direction( cursor )
         if self.move.is_stop():
             # ブロックの侵入可否チェック
             pos = ( self.loc_pos[ 0 ] + dir[ 0 ], self.loc_pos[ 1 ] + dir[ 1 ] )
@@ -123,16 +121,24 @@ class ObjectBase:
         else:
             self.move.make_progress()
 
-        self.view_pos = obj_list[ 0 ].loc_pos
-        self.view_ofs = obj_list[ 0 ].move.get_move_offset()
         self.loc_ofs  = self.move.get_move_offset()
 
         # 左右反転
-        if self.dir == ( -1, 0 )  and dir == ( 1, 0 ):
-            self.dir = dir
-        elif self.dir == ( 1, 0 ) and dir == ( -1, 0 ):
-            self.dir = dir
+        if self.imgdir == ( -1, 0 )  and dir == ( 1, 0 ):
+            self.imgdir = dir
+        elif self.imgdir == ( 1, 0 ) and dir == ( -1, 0 ):
+            self.imgdir = dir
 
+        self.view_pos = obj_list[ 0 ].loc_pos
+        self.view_ofs = obj_list[ 0 ].move.get_move_offset()
+
+    #-------------------------------------------------------------------------------
+    # 状態を更新
+    #-------------------------------------------------------------------------------
+    def update_think( self, cursor, map, obj_list ):
+
+        dir = self.get_direction( cursor )
+        self.update_common( dir, map, obj_list )
         return
 
     #-------------------------------------------------------------------------------
@@ -173,10 +179,10 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     def draw( self, screen ):
 
-        if self.dir == ( -1, 0 ):
+        if self.imgdir == ( -1, 0 ):
             # 左向き画像
             image = self.img_lr[ 0 ]
-        elif self.dir == ( 1, 0 ):
+        elif self.imgdir == ( 1, 0 ):
             # 右向き画像
             image = self.img_lr[ 1 ]
 
