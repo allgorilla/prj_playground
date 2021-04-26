@@ -47,9 +47,9 @@ class SceneDungeon( scn_base.SceneBase ):
 
         # オブジェクト初期化
         self.add_object( "image/human", cell_wh, 20, 100 )
-        self.add_object( "image/human", cell_wh, 20, 100 )
-        self.add_object( "image/human", cell_wh, 20, 100 )
-        self.add_object( "image/human", cell_wh, 20, 100 )
+        self.add_object( "image/warrior", cell_wh, 20, 100 )
+        self.add_object( "image/thief", cell_wh, 20, 100 )
+        self.add_object( "image/mage", cell_wh, 20, 100 )
 
         for i in range( 6 ):
             self.add_object( "image/enemy_mino", cell_wh, 10, 20 )
