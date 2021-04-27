@@ -42,7 +42,7 @@ class SceneDungeon( scn_base.SceneBase ):
 
         # マップ初期化
         cell_wh = ( 64, 64 )
-        screen_wh = ( 10, 8 )
+        screen_wh = ( screen.get_width() / cell_wh[ 0 ], screen.get_height() / cell_wh[ 1 ])
         self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", screen_wh, cell_wh )
 
         # オブジェクト初期化
