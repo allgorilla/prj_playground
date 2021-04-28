@@ -8,6 +8,7 @@ import threading
 import scn_base
 import srf_map
 import obj_party_player
+import obj_party_follower
 import obj_enemy_mino
 import obj_enemy_mummy
 import srf_wipe_btl
@@ -41,14 +42,19 @@ class SceneDungeon( scn_base.SceneBase ):
 
         # マップ初期化
         cell_wh = ( 64, 64 )
-        screen_wh = ( 10, 8 )
+        screen_wh = ( screen.get_width() / cell_wh[ 0 ], screen.get_height() / cell_wh[ 1 ])
         self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", screen_wh, cell_wh )
 
         # オブジェクト初期化
         self.add_object( "image/human", cell_wh, 20, 100 )
-        self.add_object( "image/enemy_mino", cell_wh, 10, 20 )
-        self.add_object( "image/enemy_mummy", cell_wh, 40, 100 )
-        self.add_object( "image/enemy_dragon", cell_wh, 20, 50 )
+        self.add_object( "image/warrior", cell_wh, 20, 100 )
+        self.add_object( "image/thief", cell_wh, 20, 100 )
+        self.add_object( "image/mage", cell_wh, 20, 100 )
+
+        for i in range( 6 ):
+            self.add_object( "image/enemy_mino", cell_wh, 10, 20 )
+            self.add_object( "image/enemy_mummy", cell_wh, 40, 100 )
+            self.add_object( "image/enemy_dragon", cell_wh, 20, 50 )
 
         # 状態管理 - カーソル
         self.__cursor = sts_cursor.StsCursor()
@@ -65,6 +71,9 @@ class SceneDungeon( scn_base.SceneBase ):
         if 0 == len( self.__obj_list ):
             pos = self.__map.get_player_pos()
             object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, cell_wh, acnt, tcnt )
+        elif 0 < len( self.__obj_list ) and len( self.__obj_list ) < 4:
+            pos = self.__map.get_player_pos()
+            object = obj_party_follower.ObjectPartyFollower( self.__pygame, pos, cell_wh, acnt, tcnt )
         else:
             pos = self.__map.get_enemy_pos()
             object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, cell_wh, acnt, tcnt )
