@@ -43,7 +43,7 @@ class SceneDungeon( scn_base.SceneBase ):
         # マップ初期化
         cell_wh = ( 64, 64 )
         screen_wh = ( screen.get_width() / cell_wh[ 0 ], screen.get_height() / cell_wh[ 1 ])
-        self.__map = srf_map.SrfMap( self.__pygame, "image/map.bmp", screen_wh, cell_wh )
+        self.__map = srf_map.SrfMap( self.__pygame, "image/map1.bmp", screen_wh, cell_wh )
 
         # オブジェクト初期化
         self.add_object( "image/human", cell_wh, 20, 100 )
@@ -69,10 +69,10 @@ class SceneDungeon( scn_base.SceneBase ):
     def add_object( self, file, cell_wh, acnt, tcnt ):
 
         if 0 == len( self.__obj_list ):
-            pos = self.__map.get_player_pos()
+            pos = self.__map.get_portal_pos()
             object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, cell_wh, acnt, tcnt )
         elif 0 < len( self.__obj_list ) and len( self.__obj_list ) < 4:
-            pos = self.__map.get_player_pos()
+            pos = self.__obj_list[ 0 ].loc_pos
             object = obj_party_follower.ObjectPartyFollower( self.__pygame, pos, cell_wh, acnt, tcnt )
         else:
             pos = self.__map.get_enemy_pos()

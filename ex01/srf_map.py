@@ -2,7 +2,7 @@
 from pygame.locals import *
 import pygame
 
-DOTCOL_START_POS = (0,0,255,255)
+DOTCOL_PORTAL = (0,0,255,255)
 DOTCOL_ENEMY = (255,0,0,255)
 DOTCOL_FLOOR = (255,255,255,255)
 DOTCOL_WALL = (0,0,0,255)
@@ -20,8 +20,8 @@ class SrfMap:
     __pygame         = None
     __map_wh         = None
     __block_wh       = None
-    __player_pos     = None
     __enemy_pos_list = []
+    __portal_pos_list = []
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -43,6 +43,9 @@ class SrfMap:
         self.__map_wh   = map_wh
         self.__block_wh = block_wh
 
+        self.__enemy_pos_list  = []
+        self.__portal_pos_list = []
+
         # マップ読み込み
         g_img_map = self.__pygame.image.load( filename )
 
@@ -55,8 +58,8 @@ class SrfMap:
             for x in range( 0, g_img_map.get_width() ):
                 pos = ( x, y )
                 dotcol = g_img_map.get_at( pos )
-                if dotcol == DOTCOL_START_POS:
-                    self.__player_pos = pos
+                if dotcol == DOTCOL_PORTAL:
+                    self.__portal_pos_list.append( pos )
                 elif dotcol == DOTCOL_ENEMY:
                     self.__enemy_pos_list.append( pos )
         return
@@ -111,7 +114,7 @@ class SrfMap:
                 if mx >= rect.left and mx < rect.right:
                     if my >= rect.top and my < rect.bottom:
                         dotcol = g_img_map.get_at(( mx, my ))
-                        if dotcol == DOTCOL_START_POS:
+                        if dotcol == DOTCOL_PORTAL:
                             img = g_img_floor
                         elif dotcol == DOTCOL_FLOOR:
                             img = g_img_floor
@@ -150,12 +153,22 @@ class SrfMap:
 
         return False
     #-------------------------------------------------------------------------------
-    # プレイヤーの座標を取得
-    #-------------------------------------------------------------------------------
-    def get_player_pos( self ):
-        return self.__player_pos
-    #-------------------------------------------------------------------------------
     # 敵の座標を１つ取得
     #-------------------------------------------------------------------------------
     def get_enemy_pos( self ):
-        return self.__enemy_pos_list.pop( 0 )
+        if 0 == len( self.__enemy_pos_list ):
+            print( "★エラー：エネミーリストが空っぽです" )
+            return ( -1, -1 )
+        else:
+            return self.__enemy_pos_list.pop( 0 )
+
+    #-------------------------------------------------------------------------------
+    # ポータルの座標を１つ取得
+    #-------------------------------------------------------------------------------
+    def get_portal_pos( self ):
+        if 0 == len( self.__portal_pos_list ):
+            print( "★エラー：ポータルリストが空っぽです" )
+            return ( -1, -1 )
+        else:
+            return self.__portal_pos_list.pop( 0 )
+
