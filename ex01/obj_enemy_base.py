@@ -7,7 +7,7 @@ import obj_base
 #-------------------------------------------------------------------------------
 # 移動マネージャークラス
 #-------------------------------------------------------------------------------
-class ObjectEnemyMino( obj_base.ObjectBase ):
+class ObjectEnemyBase( obj_base.ObjectBase ):
 
     #-------------------------------------------------------------------------------
     # プレイヤーを描画
@@ -26,3 +26,23 @@ class ObjectEnemyMino( obj_base.ObjectBase ):
             self.img_lr = self.img_list.pop( 0 )
             self.fcur = 0
 
+    #-------------------------------------------------------------------------------
+    # 接触を検知する
+    #-------------------------------------------------------------------------------
+    def find_contact_trigger( self, objerct_list ):
+
+        list = []
+        for i in range( 4 ):
+            object = objerct_list[ i ]
+            if self.loc_pos == object.loc_pos:
+                list.append( i )
+
+        if 0 != len( list ):
+            if self.contact_triger == False:
+                self.contact_triger = True
+                print( list, "が敵に接触しました", self.loc_pos )
+                return True
+            else:
+                return False
+        self.contact_triger = False
+        return False

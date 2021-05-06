@@ -40,6 +40,8 @@ class ObjectBase:
         self.img_list = []
         self.img_lr   = []
 
+        self.contact_triger = True
+
         # 状態管理 - 移動量
         self.move = sts_move.StsMove()
         self.move.set_destination( 16 )
@@ -192,3 +194,9 @@ class ObjectBase:
         screen.blit( image, ( x, y ))
 
         return
+
+    #-------------------------------------------------------------------------------
+    # 接触を検知する
+    #-------------------------------------------------------------------------------
+    def find_contact_trigger( self, objerct_list ):
+        return False

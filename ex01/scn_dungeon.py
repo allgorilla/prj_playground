@@ -9,7 +9,7 @@ import scn_base
 import srf_map
 import obj_party_player
 import obj_party_follower
-import obj_enemy_mino
+import obj_enemy_base
 import obj_enemy_mummy
 import obj_portal_base
 import srf_wipe_btl
@@ -90,7 +90,7 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     def add_enemy_object( self, file, cell_wh, acnt, tcnt ):
         pos = self.__map.get_enemy_pos()
-        object = obj_enemy_mummy.ObjectEnemyMummy( self.__pygame, pos, cell_wh, acnt, tcnt )
+        object = obj_enemy_base.ObjectEnemyBase( self.__pygame, pos, cell_wh, acnt, tcnt )
 
         object.add_pattern( file + "_a.png" )
         object.add_pattern( file + "_b.png" )
@@ -196,6 +196,11 @@ class SceneDungeon( scn_base.SceneBase ):
 
         # ワイプエフェクト
         self.__wipe.draw( self.__screen )
+
+        # ポータル侵入チェック
+        for object in self.__obj_list:
+            if object.find_contact_trigger( self.__obj_list ):
+                pass
 
         return
 
