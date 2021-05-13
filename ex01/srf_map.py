@@ -2,6 +2,12 @@
 from pygame.locals import *
 import pygame
 
+import obj_party_player
+import obj_party_follower
+import obj_enemy_base
+import obj_enemy_mummy
+import obj_portal_base
+
 DOTCOL_PORTAL = (0,0,255,255)
 DOTCOL_ENEMY = (255,0,0,255)
 DOTCOL_FLOOR = (255,255,255,255)
@@ -17,11 +23,12 @@ g_img_wall  = None
 #-------------------------------------------------------------------------------
 class SrfMap:
 
-    __pygame         = None
-    __map_wh         = None
-    __block_wh       = None
-    __enemy_pos_list = []
+    __pygame          = None
+    __map_wh          = None
+    __block_wh        = None
+    __enemy_pos_list  = []
     __portal_pos_list = []
+    obj_list          = []
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -45,6 +52,7 @@ class SrfMap:
 
         self.__enemy_pos_list  = []
         self.__portal_pos_list = []
+        self.obj_list          = []
 
         # マップ読み込み
         g_img_map = self.__pygame.image.load( filename )
@@ -77,15 +85,22 @@ class SrfMap:
         return
 
     #-------------------------------------------------------------------------------
-    # ブロックマップの表示
-    # param(in) screenオブジェクト
-    # param(in) 移動中の方向
-    # param(in) プレイヤーのマップ上の現在地(X方向)
-    # param(in) プレイヤーのマップ上の現在地(Y方向)
+    # マップの更新
     #-------------------------------------------------------------------------------
-    def draw( self, screen, view_pos, move ):
+    def update( self, cursor ):
+        for object in self.obj_list:
+            object.update_think( cursor, self, self.obj_list )
+            object.update_animation()
+            object.update_move( self )
 
-        rect = g_img_map.get_rect()
+    #-------------------------------------------------------------------------------
+    # マップの描画処理
+    #-------------------------------------------------------------------------------
+    def draw( self, screen ):
+
+        view_pos = self.obj_list[ 0 ].loc_pos
+        move     = self.obj_list[ 0 ].move
+        rect     = g_img_map.get_rect()
         bx = int( self.__map_wh[ 0 ] / 2 ) # マップ→ウインドウの表示範囲の補正値(X方向)
         by = int( self.__map_wh[ 1 ] / 2 ) # マップ→ウインドウの表示範囲の補正値(Y方向)
         sx = bx                      # マップの表示範囲の開始ブロック(X方向)
@@ -122,7 +137,40 @@ class SrfMap:
                             img = g_img_floor
                         elif dotcol == DOTCOL_WALL:
                             img = g_img_wall
-                self.__put_block( screen, move, img, ( ox + bx, oy + by ) )
+                self.__put_block( screen, move, img, ( ox + bx, oy + by ))
+        return
+
+    #-------------------------------------------------------------------------------
+    # マップの描画処理
+    #-------------------------------------------------------------------------------
+    def blit( self, screen ):
+
+        # オブジェクトアニメーション
+        for object in self.obj_list:
+            object.set_blit_pos( screen )
+
+        # 全オブジェクトの優先度リストを作成
+        pri_list = []
+        i = 0;
+        for object in self.obj_list:
+            # Y座標は大きいほど優先
+            y = object.blit_pos[ 1 ]
+            x = len( self.obj_list ) - i
+            i += 1
+            pri_list.append( y * 1000 + x )
+
+        # 優先度リストから表示順リストを作成
+        seq_list = []
+        while len( seq_list ) != len( pri_list ):
+            # 優先度リストから値の小さい順にindexを保存する
+            y_min = min( pri_list )
+            index = pri_list.index( y_min )
+            seq_list.append( index )
+            pri_list[ index ] = 0xFFFFFFFF
+
+        # 表示順リストに従ってオブジェクトを描画
+        for index in seq_list:
+            self.obj_list[ index ].draw( screen )
 
         return
 
@@ -177,4 +225,40 @@ class SrfMap:
     #-------------------------------------------------------------------------------
     def get_start_pos( self ):
         return self.__portal_pos_list[ 0 ]
+
+    #-------------------------------------------------------------------------------
+    # 味方オブジェクトを追加するメソッド
+    #-------------------------------------------------------------------------------
+    def add_party_object( self, file, cell_wh, acnt, tcnt ):
+        if 0 == len( self.obj_list ):
+            pos = self.get_start_pos()
+            object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, cell_wh, acnt, tcnt )
+        elif 0 < len( self.obj_list ) and len( self.obj_list ) < 4:
+            pos = self.obj_list[ 0 ].loc_pos
+            object = obj_party_follower.ObjectPartyFollower( self.__pygame, pos, cell_wh, acnt, tcnt )
+
+        object.add_pattern( file + "_a.png" )
+        object.add_pattern( file + "_b.png" )
+        self.obj_list.append( object )
+
+    #-------------------------------------------------------------------------------
+    # 敵オブジェクトを追加するメソッド
+    #-------------------------------------------------------------------------------
+    def add_enemy_object( self, file, cell_wh, acnt, tcnt ):
+        pos = self.get_enemy_pos()
+        object = obj_enemy_base.ObjectEnemyBase( self.__pygame, pos, cell_wh, acnt, tcnt )
+
+        object.add_pattern( file + "_a.png" )
+        object.add_pattern( file + "_b.png" )
+        self.obj_list.append( object )
+
+    #-------------------------------------------------------------------------------
+    # 敵を追加するサブルーチン
+    #-------------------------------------------------------------------------------
+    def add_portal_object( self, file, cell_wh, acnt, tcnt ):
+        pos = self.get_portal_pos()
+        object = obj_portal_base.ObjectPortalBase( self.__pygame, pos, cell_wh, acnt, tcnt )
+        object.add_pattern( file + ".png" )
+        self.obj_list.append( object )
+
 

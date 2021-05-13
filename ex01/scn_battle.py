@@ -42,7 +42,7 @@ class SceneBattle( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     # シーン開始
     #-------------------------------------------------------------------------------
-    def begin( self ):
+    def begin( self, param_list ):
 
         self.scene  = scn_base.EnumScene.Battle
         self.changed = False
