@@ -4,6 +4,7 @@ import pygame
 import sys
 import time
 import threading
+import copy
 
 import scn_base
 import srf_map
@@ -41,6 +42,7 @@ class SceneDungeon( scn_base.SceneBase ):
         # ワイプエフェクト
         self.__wipe = srf_wipe_btl.SrfWipeBattle( self.__pygame, 8 )
 
+        self.__param_list = []
         return
 
     #-------------------------------------------------------------------------------
@@ -49,6 +51,9 @@ class SceneDungeon( scn_base.SceneBase ):
     def begin( self, param_list ):
 
         self.__map = param_list.pop( 0 )
+        portal_num = param_list.pop( 0 )
+        print( portal_num )
+        self.__map.set_start_pos( portal_num )
 
         self.scene  = scn_base.EnumScene.Dungeon
         self.changed = False
@@ -72,9 +77,12 @@ class SceneDungeon( scn_base.SceneBase ):
     def end( self ):
         self.__thread = None
         self.__cursor.clear_event()
-
         self.__wipe.end()
-        return
+
+        param_list = copy.copy( self.__param_list )
+        self.__param_list.clear()
+
+        return param_list
 
     #-------------------------------------------------------------------------------
     # 周期更新
@@ -96,6 +104,14 @@ class SceneDungeon( scn_base.SceneBase ):
             if state == self.__wipe.get_state():
                 self.change( scn_base.EnumScene.Battle )
 
+            # ポータル侵入チェック
+            for object in self.__map.obj_list:
+                if object.find_contact_trigger( self.__map.obj_list ):
+                    if object.type == "PORTAL":
+                        self.__param_list.append( self.__map )
+                        self.__param_list.append( 0 )
+                        self.change( scn_base.EnumScene.Dungeon )
+
     #-------------------------------------------------------------------------------
     # 描画
     #-------------------------------------------------------------------------------
@@ -107,11 +123,6 @@ class SceneDungeon( scn_base.SceneBase ):
 
         # ワイプエフェクト
         self.__wipe.draw( self.__screen )
-
-        # ポータル侵入チェック
-        for object in self.__map.obj_list:
-            if object.find_contact_trigger( self.__map.obj_list ):
-                pass
 
         return
 

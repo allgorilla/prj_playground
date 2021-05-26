@@ -23,6 +23,16 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     def __init__( self, pygame, pos, grid_wh, acnt, tcnt ):
 
+        self.type       = "COMMON"
+        self.init_common( pygame, pos, grid_wh, acnt, tcnt )
+
+        return
+
+    #-------------------------------------------------------------------------------
+    # コンストラクタの共通部分
+    #-------------------------------------------------------------------------------
+    def init_common( self, pygame, pos, grid_wh, acnt, tcnt ):
+
         self.pygame   = pygame
         self.loc_pos  = pos
         self.loc_ofs  = ( 0, 0 )

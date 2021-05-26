@@ -39,17 +39,16 @@ def main():
     map.add_party_object( "image/thief", cell_wh, 20, 100 )
     map.add_party_object( "image/mage", cell_wh, 20, 100 )
 
-    for i in range( 6 ):
+    for i in range( 18 ):
         map.add_enemy_object( "image/enemy_mino", cell_wh, 10, 20 )
-        map.add_enemy_object( "image/enemy_mummy", cell_wh, 40, 100 )
-        map.add_enemy_object( "image/enemy_dragon", cell_wh, 20, 50 )
 
-    map.add_portal_object( "image/stairs_d", cell_wh, 20, 100 )
-    map.add_portal_object( "image/circle", cell_wh, 20, 100 )
-    map.add_portal_object( "image/circle", cell_wh, 20, 100 )
-    map.add_portal_object( "image/circle", cell_wh, 20, 100 )
-    map.add_portal_object( "image/circle", cell_wh, 20, 100 )
+    map.add_portal_object( "image/stairs_d", cell_wh, map, 0 )
+    map.add_portal_object( "image/circle",   cell_wh, map, 2 )
+    map.add_portal_object( "image/circle",   cell_wh, map, 1 )
+    map.add_portal_object( "image/circle",   cell_wh, map, 3 )
+    map.add_portal_object( "image/circle",   cell_wh, map, 4 )
     param_list.append( map )
+    param_list.append( 4 )
 
     # シーンオブジェクトを作成
     scene_list.append( scn_dungeon.SceneDungeon( pygame, screen ) )
@@ -63,8 +62,9 @@ def main():
 
         # シーン切り替え
         if True == scene.is_changed():
-            scene.end()
+            param_list = scene.end()
             scene = scene_list[ scene.get_scene() ]
+            print( param_list )
             scene.begin( param_list )
 
         # 描画

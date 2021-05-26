@@ -223,6 +223,22 @@ class SrfMap:
     #-------------------------------------------------------------------------------
     # プレイヤーの開始座標を取得
     #-------------------------------------------------------------------------------
+    def set_start_pos( self, num ):
+
+        object_cnt = 0
+        portal_cnt = 0
+        for object in self.obj_list:
+            if object.type == "PORTAL":
+                if portal_cnt == num:
+                    self.obj_list[ 0 ].loc_pos = self.obj_list[ object_cnt ].loc_pos
+                portal_cnt += 1
+            object_cnt += 1
+
+        return
+
+    #-------------------------------------------------------------------------------
+    # プレイヤーの開始座標を取得
+    #-------------------------------------------------------------------------------
     def get_start_pos( self ):
         return self.__portal_pos_list[ 0 ]
 
@@ -255,9 +271,9 @@ class SrfMap:
     #-------------------------------------------------------------------------------
     # 敵を追加するサブルーチン
     #-------------------------------------------------------------------------------
-    def add_portal_object( self, file, cell_wh, acnt, tcnt ):
+    def add_portal_object( self, file, cell_wh, map, num ):
         pos = self.get_portal_pos()
-        object = obj_portal_base.ObjectPortalBase( self.__pygame, pos, cell_wh, acnt, tcnt )
+        object = obj_portal_base.ObjectPortalBase( self.__pygame, pos, cell_wh, map, num )
         object.add_pattern( file + ".png" )
         self.obj_list.append( object )
 
