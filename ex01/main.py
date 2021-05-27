@@ -64,7 +64,6 @@ def main():
         if True == scene.is_changed():
             param_list = scene.end()
             scene = scene_list[ scene.get_scene() ]
-            print( param_list )
             scene.begin( param_list )
 
         # 描画

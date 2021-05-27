@@ -26,6 +26,7 @@ class SceneDungeon( scn_base.SceneBase ):
     __map      = None
     __cursor   = None
     __cnt      = None
+    __t_flag   = False
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -52,7 +53,6 @@ class SceneDungeon( scn_base.SceneBase ):
 
         self.__map = param_list.pop( 0 )
         portal_num = param_list.pop( 0 )
-        print( portal_num )
         self.__map.set_start_pos( portal_num )
 
         self.scene  = scn_base.EnumScene.Dungeon
@@ -62,25 +62,27 @@ class SceneDungeon( scn_base.SceneBase ):
         state = srf_wipe_btl.EnumWipeStatus.WIPE_SPREAD
         self.__wipe.begin( state )
 
-        if None != self.__thread:
-            return False
-
-        else:
+        if None == self.__thread:
+            self.__t_flag = True
             self.__thread = threading.Thread( target = self.__update )
             self.__thread.setDaemon( True )
             self.__thread.start()
-            return True
+        else:
+            self.__t_flag = False
 
     #-------------------------------------------------------------------------------
     # シーン終了
     #-------------------------------------------------------------------------------
     def end( self ):
-        self.__thread = None
+        self.__t_flag = False
         self.__cursor.clear_event()
         self.__wipe.end()
 
         param_list = copy.copy( self.__param_list )
         self.__param_list.clear()
+
+        self.__thread.join()
+        self.__thread = None
 
         return param_list
 
@@ -89,7 +91,7 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     def __update( self ):
 
-        while None != self.__thread:
+        while False != self.__t_flag:
             # システムとの同期
             self.__pygame.event.pump()
             self.__pygame.time.wait( 16 )
