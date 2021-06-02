@@ -277,4 +277,16 @@ class SrfMap:
         object.add_pattern( file + ".png" )
         self.obj_list.append( object )
 
+    #-------------------------------------------------------------------------------
+    # 仲間の座標をリセットする
+    #-------------------------------------------------------------------------------
+    def reset_follower_pos( self ):
+        for object in self.obj_list:
+            if object.type == "PLAYER":
+                player_pos = object.loc_pos
 
+        for object in self.obj_list:
+            if object.type == "FOLLOWER":
+                object.loc_pos = player_pos
+
+        return

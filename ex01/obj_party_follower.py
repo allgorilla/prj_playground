@@ -10,6 +10,15 @@ import obj_base
 class ObjectPartyFollower( obj_base.ObjectBase ):
 
     #-------------------------------------------------------------------------------
+    # コンストラクタ
+    #-------------------------------------------------------------------------------
+    def __init__( self, pygame, pos, grid_wh, acnt, tcnt ):
+
+        self.type       = "FOLLOWER"
+        self.init_common( pygame, pos, grid_wh, acnt, tcnt )
+
+        return
+    #-------------------------------------------------------------------------------
     # 状態を更新
     #-------------------------------------------------------------------------------
     def update_think( self, cursor, map, obj_list ):

@@ -58,9 +58,12 @@ class SceneDungeon( scn_base.SceneBase ):
         self.scene  = scn_base.EnumScene.Dungeon
         self.changed = False
         self.__cnt = 0
+        self.__scene_state = scn_base.EnumSceneState.Opening
+        print("ステートを再設定")
 
-        state = srf_wipe_btl.EnumWipeStatus.WIPE_SPREAD
-        self.__wipe.begin( state )
+        self.__cursor.first_flag = True
+
+        self.__wipe.begin( srf_wipe_btl.EnumWipeStatus.WIPE_SPREAD )
 
         if None == self.__thread:
             self.__t_flag = True
@@ -69,6 +72,10 @@ class SceneDungeon( scn_base.SceneBase ):
             self.__thread.start()
         else:
             self.__t_flag = False
+
+        # オブジェクトアニメーション
+        self.__map.reset_follower_pos()
+        self.__map.update( self.__cursor )
 
     #-------------------------------------------------------------------------------
     # シーン終了
@@ -96,23 +103,43 @@ class SceneDungeon( scn_base.SceneBase ):
             self.__pygame.event.pump()
             self.__pygame.time.wait( 16 )
 
-            # オブジェクトアニメーション
-            self.__map.update( self.__cursor )
+            if self.__scene_state == scn_base.EnumSceneState.Opened:
 
-            # ワイプエフェクト
-            self.__wipe.make_progress()
+                # オブジェクトアニメーション
+                self.__map.update( self.__cursor )
 
-            state = srf_wipe_btl.EnumWipeStatus.FILL_COMPLETELY
-            if state == self.__wipe.get_state():
-                self.change( scn_base.EnumScene.Battle )
+                # ポータル侵入チェック
+                for object in self.__map.obj_list:
+                    if object.find_contact_trigger( self.__map.obj_list ):
+                        if object.type == "PORTAL":
+                            if self.__cursor.first_flag == False:
+                                self.__wipe.begin( srf_wipe_btl.EnumWipeStatus.WIPE_SHRINK )
+                                self.__scene_state = scn_base.EnumSceneState.Closing
 
-            # ポータル侵入チェック
-            for object in self.__map.obj_list:
-                if object.find_contact_trigger( self.__map.obj_list ):
-                    if object.type == "PORTAL":
-                        self.__param_list.append( self.__map )
-                        self.__param_list.append( 0 )
-                        self.change( scn_base.EnumScene.Dungeon )
+            elif self.__scene_state == scn_base.EnumSceneState.Closed:
+                self.__param_list.append( self.__map )
+                self.__param_list.append( 0 )
+                self.change( scn_base.EnumScene.Dungeon )
+                print( "Closed2" )
+                return
+
+            elif self.__scene_state == scn_base.EnumSceneState.Opening:
+                if self.__wipe.get_state() == srf_wipe_btl.EnumWipeStatus.WIPE_COMPLETELY:
+                    self.__scene_state = scn_base.EnumSceneState.Opened
+                    print( "Opened1" )
+                else:
+                    # ワイプエフェクト
+                    self.__wipe.make_progress()
+
+            elif self.__scene_state == scn_base.EnumSceneState.Closing:
+                if self.__wipe.get_state() == srf_wipe_btl.EnumWipeStatus.FILL_COMPLETELY:
+                    self.__scene_state = scn_base.EnumSceneState.Closed
+                    print( "Closed1" )
+                else:
+                    # ワイプエフェクト
+                    self.__wipe.make_progress()
+            else:
+                pass
 
     #-------------------------------------------------------------------------------
     # 描画
