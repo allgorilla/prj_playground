@@ -62,7 +62,6 @@ def main():
 
         # シーン切り替え
         if True == scene.is_changed():
-            print("シーン切り替え")
             param_list = scene.end()
             scene = scene_list[ scene.get_scene() ]
             scene.begin( param_list )

@@ -17,7 +17,7 @@ class EnumScene( IntEnum ):
 #-------------------------------------------------------------------------------
 # シーン状態列挙型
 #-------------------------------------------------------------------------------
-class EnumSceneState( IntEnum ):
+class EnumStatus( IntEnum ):
     Opening = 0
     Opened  = 1
     Closed  = 2
