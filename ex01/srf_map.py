@@ -88,6 +88,7 @@ class SrfMap:
     # マップの更新
     #-------------------------------------------------------------------------------
     def update( self, cursor ):
+
         for object in self.obj_list:
             object.update_think( cursor, self, self.obj_list )
             object.update_animation()
@@ -98,8 +99,9 @@ class SrfMap:
     #-------------------------------------------------------------------------------
     def draw( self, screen ):
 
-        view_pos = self.obj_list[ 0 ].loc_pos
-        move     = self.obj_list[ 0 ].move
+        player_object = self.__get_player_object()
+        view_pos = player_object.loc_pos
+        move     = player_object.move
         rect     = g_img_map.get_rect()
         bx = int( self.__map_wh[ 0 ] / 2 ) # マップ→ウインドウの表示範囲の補正値(X方向)
         by = int( self.__map_wh[ 1 ] / 2 ) # マップ→ウインドウの表示範囲の補正値(Y方向)
@@ -204,6 +206,7 @@ class SrfMap:
     # 敵の座標を１つ取得
     #-------------------------------------------------------------------------------
     def get_enemy_pos( self ):
+
         if 0 == len( self.__enemy_pos_list ):
             print( "★エラー：エネミーリストが空っぽです" )
             return ( -1, -1 )
@@ -214,6 +217,7 @@ class SrfMap:
     # ポータルの座標を１つ取得
     #-------------------------------------------------------------------------------
     def get_portal_pos( self ):
+
         if 0 == len( self.__portal_pos_list ):
             print( "★エラー：ポータルリストが空っぽです" )
             return ( -1, -1 )
@@ -227,10 +231,11 @@ class SrfMap:
 
         object_cnt = 0
         portal_cnt = 0
+        player_object = self.__get_player_object()
         for object in self.obj_list:
             if object.type == "PORTAL":
                 if portal_cnt == num:
-                    self.obj_list[ 0 ].loc_pos = self.obj_list[ object_cnt ].loc_pos
+                    player_object.loc_pos = self.obj_list[ object_cnt ].loc_pos
                 portal_cnt += 1
             object_cnt += 1
 
@@ -246,11 +251,13 @@ class SrfMap:
     # 味方オブジェクトを追加するメソッド
     #-------------------------------------------------------------------------------
     def add_party_object( self, file, cell_wh, acnt, tcnt ):
+
+        player_object = self.__get_player_object()
         if 0 == len( self.obj_list ):
             pos = self.get_start_pos()
             object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, cell_wh, acnt, tcnt )
         elif 0 < len( self.obj_list ) and len( self.obj_list ) < 4:
-            pos = self.obj_list[ 0 ].loc_pos
+            pos = player_object.loc_pos
             object = obj_party_follower.ObjectPartyFollower( self.__pygame, pos, cell_wh, acnt, tcnt )
 
         object.add_pattern( file + "_a.png" )
@@ -261,6 +268,7 @@ class SrfMap:
     # 敵オブジェクトを追加するメソッド
     #-------------------------------------------------------------------------------
     def add_enemy_object( self, file, cell_wh, acnt, tcnt ):
+
         pos = self.get_enemy_pos()
         object = obj_enemy_base.ObjectEnemyBase( self.__pygame, pos, cell_wh, acnt, tcnt )
 
@@ -272,21 +280,29 @@ class SrfMap:
     # 敵を追加するサブルーチン
     #-------------------------------------------------------------------------------
     def add_portal_object( self, file, cell_wh, map, num ):
+
         pos = self.get_portal_pos()
         object = obj_portal_base.ObjectPortalBase( self.__pygame, pos, cell_wh, map, num )
         object.add_pattern( file + ".png" )
         self.obj_list.append( object )
 
     #-------------------------------------------------------------------------------
+    # プレイヤーの座標をオブジェクトを取得する
+    #-------------------------------------------------------------------------------
+    def __get_player_object( self ):
+
+        for object in self.obj_list:
+            if object.type == "PLAYER":
+                return object
+
+    #-------------------------------------------------------------------------------
     # 仲間の座標をリセットする
     #-------------------------------------------------------------------------------
     def reset_follower_pos( self ):
-        for object in self.obj_list:
-            if object.type == "PLAYER":
-                player_pos = object.loc_pos
 
+        player_object = self.__get_player_object()
         for object in self.obj_list:
             if object.type == "FOLLOWER":
-                object.loc_pos = player_pos
+                object.loc_pos = player_object.loc_pos
 
         return
