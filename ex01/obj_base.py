@@ -61,12 +61,12 @@ class ObjectBase:
     #-------------------------------------------------------------------------------
     # パターンを追加
     #-------------------------------------------------------------------------------
-    def add_pattern( self, filename ):
+    def add_pattern( self, pygame, filename ):
 
         image_lr = []
 
         # 画像ファイルを読み込み
-        image = self.pygame.image.load( filename ).convert()
+        image = pygame.image.load( filename ).convert()
 
         # カラーキーを設定
         colorkey = image.get_at(( 0, 0 ))
@@ -76,7 +76,7 @@ class ObjectBase:
         image_lr.append( image )
 
         # 右向きイメージをリストに追加
-        image = self.pygame.transform.flip( image, True, False )
+        image = pygame.transform.flip( image, True, False )
         image_lr.append( image )
 
         # 左右のセットをリストについて

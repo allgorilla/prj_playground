@@ -7,28 +7,23 @@ import obj_party_follower
 import obj_enemy_base
 import obj_enemy_mummy
 import obj_portal_base
-
-DOTCOL_PORTAL = (0,0,255,255)
-DOTCOL_ENEMY = (255,0,0,255)
-DOTCOL_FLOOR = (255,255,255,255)
-DOTCOL_WALL = (0,0,0,255)
-
-g_img_map   = None
-g_img_black = None
-g_img_floor = None
-g_img_wall  = None
+import blk_base
 
 #-------------------------------------------------------------------------------
 # ブロックマップ
 #-------------------------------------------------------------------------------
-class SrfMap:
+class MapBase:
 
     __pygame          = None
     __map_wh          = None
     __block_wh        = None
+
     __enemy_pos_list  = []
     __portal_pos_list = []
     obj_list          = []
+
+    __img_map         = None
+    __img_black       = None
 
     #-------------------------------------------------------------------------------
     # コンストラクタ
@@ -41,12 +36,27 @@ class SrfMap:
     #-------------------------------------------------------------------------------
     def __init__( self, pygame, filename, map_wh, block_wh ):
 
-        global g_img_map
-        global g_img_black
-        global g_img_floor
-        global g_img_wall
-
         self.__pygame   = pygame
+        self.block_type_list = []
+
+        # イメージの読み込み
+
+        # 共通初期化処理
+        self.init_common( filename, map_wh, block_wh )
+
+        # オブジェクト初期化
+
+        # エネミーのマップ配置
+
+        # ポータルのマップ配置
+
+        return
+
+    #-------------------------------------------------------------------------------
+    # コンストラクタの共通部分
+    #-------------------------------------------------------------------------------
+    def init_common( self, pygame, filename, map_wh, block_wh ):
+
         self.__map_wh   = map_wh
         self.__block_wh = block_wh
 
@@ -55,22 +65,37 @@ class SrfMap:
         self.obj_list          = []
 
         # マップ読み込み
-        g_img_map = self.__pygame.image.load( filename )
+        self.__img_map = pygame.image.load( filename )
+        self.__img_black = pygame.image.load( "image/black_64.bmp" )
 
-        # イメージの読み込み
-        g_img_black = self.__pygame.image.load( "image/black_64.bmp" )
-        g_img_floor = self.__pygame.image.load( "image/floor.bmp" )
-        g_img_wall  = self.__pygame.image.load( "image/wall.bmp" )
+        for y in range( 0, self.__img_map.get_height() ):
+            for x in range( 0, self.__img_map.get_width() ):
 
-        for y in range( 0, g_img_map.get_height() ):
-            for x in range( 0, g_img_map.get_width() ):
                 pos = ( x, y )
-                dotcol = g_img_map.get_at( pos )
-                if dotcol == DOTCOL_PORTAL:
+                color = self.__img_map.get_at( pos )
+                type = self.__get_blcock_type( color ).obj_type
+
+                if type == "PORTAL":
                     self.__portal_pos_list.append( pos )
-                elif dotcol == DOTCOL_ENEMY:
+                elif type == "ENEMY":
                     self.__enemy_pos_list.append( pos )
+                elif type == "NONE":
+                    pass
+                else:
+                    pass
+                    print( "未登録" )
         return
+
+    #-------------------------------------------------------------------------------
+    # ドットカラーを指定して、オブジェクトタイプを取得する
+    #-------------------------------------------------------------------------------
+    def __get_blcock_type( self, color ):
+
+        for block in self.block_type_list:
+            if block.color == color:
+                return block
+
+        return None
 
     #-------------------------------------------------------------------------------
     # 画像表示（ブロック指定）
@@ -94,6 +119,8 @@ class SrfMap:
             object.update_animation()
             object.update_move( self )
 
+        return
+
     #-------------------------------------------------------------------------------
     # マップの描画処理
     #-------------------------------------------------------------------------------
@@ -102,7 +129,7 @@ class SrfMap:
         player_object = self.__get_player_object()
         view_pos = player_object.loc_pos
         move     = player_object.move
-        rect     = g_img_map.get_rect()
+        rect     = self.__img_map.get_rect()
         bx = int( self.__map_wh[ 0 ] / 2 ) # マップ→ウインドウの表示範囲の補正値(X方向)
         by = int( self.__map_wh[ 1 ] / 2 ) # マップ→ウインドウの表示範囲の補正値(Y方向)
         sx = bx                      # マップの表示範囲の開始ブロック(X方向)
@@ -127,18 +154,11 @@ class SrfMap:
                 mx = ox + view_pos[ 0 ] # マップから読みだす対象のX座標
                 my = oy + view_pos[ 1 ] # マップから読みだす対象のY座標
 
-                img = g_img_black
+                img = self.__img_black
                 if mx >= rect.left and mx < rect.right:
                     if my >= rect.top and my < rect.bottom:
-                        dotcol = g_img_map.get_at(( mx, my ))
-                        if dotcol == DOTCOL_PORTAL:
-                            img = g_img_floor
-                        elif dotcol == DOTCOL_FLOOR:
-                            img = g_img_floor
-                        elif dotcol == DOTCOL_ENEMY:
-                            img = g_img_floor
-                        elif dotcol == DOTCOL_WALL:
-                            img = g_img_wall
+                        color = self.__img_map.get_at(( mx, my ))
+                        img = self.__get_blcock_type( color ).image
                 self.__put_block( screen, move, img, ( ox + bx, oy + by ))
         return
 
@@ -182,7 +202,7 @@ class SrfMap:
     def __is_out_of_map( self, pos ):
 
         ( x, y ) = pos
-        rect = g_img_map.get_rect()
+        rect = self.__img_map.get_rect()
         if rect.top <= x and x < rect.bottom:
             if rect.left <= y and y < rect.right:
                 return False
@@ -198,7 +218,8 @@ class SrfMap:
         if True == self.__is_out_of_map( pos ):
             return False
 
-        elif DOTCOL_WALL != g_img_map.get_at( pos ):
+        color = self.__img_map.get_at( pos )
+        if self.__get_blcock_type( color ).can_walk:
             return True
 
         return False
@@ -248,42 +269,54 @@ class SrfMap:
         return self.__portal_pos_list[ 0 ]
 
     #-------------------------------------------------------------------------------
+    # ブロックタイプを追加する
+    #-------------------------------------------------------------------------------
+    def add_block_type( self, pygame, color, obj_type, can_walk, file ):
+
+        type = self.__get_blcock_type( color )
+        if type == None:
+            block = blk_base.BlockBase( pygame, color, obj_type, can_walk, file )
+            self.block_type_list.append( block )
+
+        return
+
+    #-------------------------------------------------------------------------------
     # 味方オブジェクトを追加するメソッド
     #-------------------------------------------------------------------------------
-    def add_party_object( self, file, cell_wh, acnt, tcnt ):
+    def add_party_object( self, pygame, file, block_wh, acnt, tcnt ):
 
         player_object = self.__get_player_object()
         if 0 == len( self.obj_list ):
             pos = self.get_start_pos()
-            object = obj_party_player.ObjectPartyPlayer( self.__pygame, pos, cell_wh, acnt, tcnt )
+            object = obj_party_player.ObjectPartyPlayer( pygame, pos, block_wh, acnt, tcnt )
         elif 0 < len( self.obj_list ) and len( self.obj_list ) < 4:
             pos = player_object.loc_pos
-            object = obj_party_follower.ObjectPartyFollower( self.__pygame, pos, cell_wh, acnt, tcnt )
+            object = obj_party_follower.ObjectPartyFollower( pygame, pos, block_wh, acnt, tcnt )
 
-        object.add_pattern( file + "_a.png" )
-        object.add_pattern( file + "_b.png" )
+        object.add_pattern( pygame, file + "_a.png" )
+        object.add_pattern( pygame, file + "_b.png" )
         self.obj_list.append( object )
 
     #-------------------------------------------------------------------------------
     # 敵オブジェクトを追加するメソッド
     #-------------------------------------------------------------------------------
-    def add_enemy_object( self, file, cell_wh, acnt, tcnt ):
+    def add_enemy_object( self, pygame, file, block_wh, acnt, tcnt ):
 
         pos = self.get_enemy_pos()
-        object = obj_enemy_base.ObjectEnemyBase( self.__pygame, pos, cell_wh, acnt, tcnt )
+        object = obj_enemy_base.ObjectEnemyBase( pygame, pos, block_wh, acnt, tcnt )
 
-        object.add_pattern( file + "_a.png" )
-        object.add_pattern( file + "_b.png" )
+        object.add_pattern( pygame, file + "_a.png" )
+        object.add_pattern( pygame, file + "_b.png" )
         self.obj_list.append( object )
 
     #-------------------------------------------------------------------------------
     # 敵を追加するサブルーチン
     #-------------------------------------------------------------------------------
-    def add_portal_object( self, file, cell_wh, map, num ):
+    def add_portal_object( self, pygame, file, block_wh, map, num ):
 
         pos = self.get_portal_pos()
-        object = obj_portal_base.ObjectPortalBase( self.__pygame, pos, cell_wh, map, num )
-        object.add_pattern( file + ".png" )
+        object = obj_portal_base.ObjectPortalBase( pygame, pos, block_wh, map, num )
+        object.add_pattern( pygame, file + ".png" )
         self.obj_list.append( object )
 
     #-------------------------------------------------------------------------------

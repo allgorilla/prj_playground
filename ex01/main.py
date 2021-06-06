@@ -6,7 +6,7 @@ import scn_base
 import scn_dungeon
 import scn_battle
 import scn_quit
-import srf_map
+import map_d1
 
 SCREEN_H = ( 512 )
 SCREEN_W = ( 640 )
@@ -31,22 +31,7 @@ def main():
     # マップ初期化
     cell_wh = ( 64, 64 )
     screen_wh = ( screen.get_width() / cell_wh[ 0 ], screen.get_height() / cell_wh[ 1 ])
-    map = srf_map.SrfMap( pygame, "image/map1.bmp", screen_wh, cell_wh )
-
-    # オブジェクト初期化
-    map.add_party_object( "image/human", cell_wh, 20, 100 )
-    map.add_party_object( "image/warrior", cell_wh, 20, 100 )
-    map.add_party_object( "image/thief", cell_wh, 20, 100 )
-    map.add_party_object( "image/mage", cell_wh, 20, 100 )
-
-    for i in range( 18 ):
-        map.add_enemy_object( "image/enemy_mino", cell_wh, 10, 20 )
-
-    map.add_portal_object( "image/stairs_d", cell_wh, map, 0 )
-    map.add_portal_object( "image/circle",   cell_wh, map, 2 )
-    map.add_portal_object( "image/circle",   cell_wh, map, 1 )
-    map.add_portal_object( "image/circle",   cell_wh, map, 3 )
-    map.add_portal_object( "image/circle",   cell_wh, map, 4 )
+    map = map_d1.MapDungeon1( pygame, "image/map1.bmp", screen_wh, cell_wh )
     param_list.append( map )
     param_list.append( 4 )
 
@@ -75,4 +60,7 @@ def main():
         scene.input()
 
 if __name__=="__main__":
+    print( "                                                                                " )
+    print( "--- PROGRAM START ---" )
+    print( "                                                                                " )
     main()

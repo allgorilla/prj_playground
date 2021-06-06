@@ -7,9 +7,9 @@ import threading
 import copy
 
 import scn_base
-import srf_map
 import srf_wipe_btl
 import sts_cursor
+import map_base
 
 #-------------------------------------------------------------------------------
 # シーンクラス
@@ -71,6 +71,8 @@ class SceneDungeon( scn_base.SceneBase ):
         # オブジェクトアニメーション
         self.__map.reset_follower_pos()
         self.__map.update( self.__cursor )
+
+        return
 
     #-------------------------------------------------------------------------------
     # シーン終了
