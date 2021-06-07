@@ -50,10 +50,10 @@ class MapDungeon1( map_base.MapBase ):
             self.add_enemy_object( pygame, "image/enemy_mino", block_wh, 10, 20 )
 
         # ポータルのマップ配置
-        self.add_portal_object( pygame, "image/stairs_d", block_wh, self, 0 )
-        self.add_portal_object( pygame, "image/circle",   block_wh, self, 2 )
-        self.add_portal_object( pygame, "image/circle",   block_wh, self, 1 )
-        self.add_portal_object( pygame, "image/circle",   block_wh, self, 3 )
-        self.add_portal_object( pygame, "image/circle",   block_wh, self, 4 )
+        self.add_portal_object( pygame, "image/stairs_d", block_wh, 1, 0 )
+        self.add_portal_object( pygame, "image/circle",   block_wh, 1, 2 )
+        self.add_portal_object( pygame, "image/circle",   block_wh, 1, 1 )
+        self.add_portal_object( pygame, "image/circle",   block_wh, 0, 0 )
+        self.add_portal_object( pygame, "image/circle",   block_wh, 0, 1 )
 
         return

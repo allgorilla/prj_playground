@@ -32,7 +32,7 @@ class SceneQuit( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     # シーン開始
     #-------------------------------------------------------------------------------
-    def begin( self, param_list ):
+    def begin( self, param_list, map_list ):
         # アプリケーション終了
         self.__pygame.quit() 
         sys.exit()

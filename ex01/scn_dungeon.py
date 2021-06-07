@@ -48,9 +48,9 @@ class SceneDungeon( scn_base.SceneBase ):
     #-------------------------------------------------------------------------------
     # 周期処理開始
     #-------------------------------------------------------------------------------
-    def begin( self, param_list ):
+    def begin( self, param_list, map_list ):
 
-        self.__map = param_list.pop( 0 )
+        self.__map = map_list[ param_list.pop( 0 ) ]
         portal_num = param_list.pop( 0 )
         self.__map.set_start_pos( portal_num )
 
