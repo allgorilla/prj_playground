@@ -32,11 +32,11 @@ class MapTown0( map_base.MapBase ):
 
         # イメージの読み込み
         self.add_block_type( pygame, (   0,   0,   0, 255 ), "NONE",   False, "image/black_64.bmp"  )
-        self.add_block_type( pygame, (  64,  64,  64, 255 ), "NONE",   False, "image/t_wall.png" )
-        self.add_block_type( pygame, (   0, 127,   0, 255 ), "NONE",   False, "image/t_tree.png" )
-        self.add_block_type( pygame, ( 191, 191, 191, 255 ), "NONE",   True,  "image/t_road.png" )
-        self.add_block_type( pygame, ( 255, 255, 255, 255 ), "NONE",   True,  "image/t_grass.png" )
-        self.add_block_type( pygame, (   0,   0, 255, 255 ), "PORTAL", True,  "image/t_portal.png" )
+        self.add_block_type( pygame, (  64,  64,  64, 255 ), "NONE",   False, "image/t_wall.bmp" )
+        self.add_block_type( pygame, (   0, 127,   0, 255 ), "NONE",   False, "image/t_tree.bmp" )
+        self.add_block_type( pygame, ( 191, 191, 191, 255 ), "NONE",   True,  "image/t_road.bmp" )
+        self.add_block_type( pygame, ( 255, 255, 255, 255 ), "NONE",   True,  "image/t_grass.bmp" )
+        self.add_block_type( pygame, (   0,   0, 255, 255 ), "PORTAL", True,  "image/t_portal.bmp" )
 
         # 共通初期化処理
         self.init_common( pygame, filename, map_wh, block_wh )

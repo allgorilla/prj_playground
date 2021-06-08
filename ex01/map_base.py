@@ -316,7 +316,7 @@ class MapBase:
 
         pos = self.get_portal_pos()
         object = obj_portal_base.ObjectPortalBase( pygame, pos, block_wh, map, num )
-        object.add_pattern( pygame, file + ".png" )
+        object.add_pattern( pygame, file + ".bmp" )
         self.obj_list.append( object )
 
     #-------------------------------------------------------------------------------

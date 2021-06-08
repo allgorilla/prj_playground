@@ -65,7 +65,7 @@ def main():
         scene.input()
 
 if __name__=="__main__":
-    print( "                                                                                " )
+    print( "" )
     print( "--- PROGRAM START ---" )
-    print( "                                                                                " )
+    print( "" )
     main()
