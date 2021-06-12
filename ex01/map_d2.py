@@ -51,6 +51,6 @@ class MapDungeon2( map_base.MapBase ):
 
         # ポータルのマップ配置
         self.add_portal_object( pygame, "image/stairs_d", block_wh, 2, 0 )
-        self.add_portal_object( pygame, "image/circle",   block_wh, 1, 3 )
+        self.add_portal_object( pygame, "image/circle",   block_wh, 1, 0 )
 
         return

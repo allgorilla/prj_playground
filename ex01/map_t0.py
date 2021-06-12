@@ -64,17 +64,5 @@ class MapTown0( map_base.MapBase ):
         self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 11 )
         self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 12 )
         self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 13 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 14 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 15 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 16 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 17 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 18 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 19 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 20 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 21 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 22 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 23 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 24 )
-        self.add_portal_object( pygame, "image/t_portal", block_wh, 0, 25 )
 
         return

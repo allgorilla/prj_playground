@@ -10,8 +10,8 @@ import map_t0
 import map_d1
 import map_d2
 
-SCREEN_H = ( 512 )
-SCREEN_W = ( 640 )
+SCREEN_H = ( 640 + 64*6 )
+SCREEN_W = ( 768 + 64*6  )
 
 #-------------------------------------------------------------------------------
 # Main関数
@@ -38,7 +38,7 @@ def main():
     map_list.append( map_d1.MapDungeon1( pygame, "image/map1.bmp", screen_wh, cell_wh ) )
     map_list.append( map_d2.MapDungeon2( pygame, "image/map2.bmp", screen_wh, cell_wh ) )
     param_list.append( 0 )
-    param_list.append( 25 )
+    param_list.append( 13 )
 
     # シーンオブジェクトを作成
     scene_list.append( scn_dungeon.SceneDungeon( pygame, screen ) )
