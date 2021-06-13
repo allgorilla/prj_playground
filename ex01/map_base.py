@@ -7,6 +7,7 @@ import obj_party_follower
 import obj_enemy_base
 import obj_enemy_mummy
 import obj_portal_base
+import obj_fixed_base
 import blk_base
 
 #-------------------------------------------------------------------------------
@@ -79,6 +80,8 @@ class MapBase:
                     self.__portal_pos_list.append( pos )
                 elif type == "ENEMY":
                     self.__enemy_pos_list.append( pos )
+                elif type == "FIXED":
+                    self.__enemy_pos_list.append( pos )
                 elif type == "NONE":
                     pass
                 else:
@@ -94,6 +97,8 @@ class MapBase:
         for block in self.block_type_list:
             if block.color == color:
                 return block
+
+        print( color )
 
         return None
 
@@ -307,6 +312,17 @@ class MapBase:
 
         object.add_pattern( pygame, file + "_a.png" )
         object.add_pattern( pygame, file + "_b.png" )
+        self.obj_list.append( object )
+
+    #-------------------------------------------------------------------------------
+    # 敵オブジェクトを追加するメソッド
+    #-------------------------------------------------------------------------------
+    def add_fixed_object( self, pygame, file, block_wh, acnt, tcnt ):
+
+        pos = self.get_enemy_pos()
+        object = obj_fixed_base.ObjectFixedBase( pygame, pos, block_wh, acnt, tcnt )
+
+        object.add_pattern( pygame, file + ".bmp" )
         self.obj_list.append( object )
 
     #-------------------------------------------------------------------------------
